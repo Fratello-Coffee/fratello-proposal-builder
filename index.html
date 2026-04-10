@@ -31,8 +31,8 @@ button{font-family:'Montserrat',sans-serif}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 @keyframes expandRule{to{width:72px}}
 @keyframes pulse{0%,100%{background:rgba(46,180,175,0.25);transform:scale(1)}50%{background:#2eb4af;transform:scale(1.3)}}
-.card-enter{animation:cardIn 0.3s cubic-bezier(0.22,1,0.36,1) both}
-@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.card-enter{animation:cardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:none}}
 .float-bar{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;border:1px solid rgba(46,180,175,0.35);border-radius:40px;padding:11px 22px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(0,0,0,0.7);z-index:100;white-space:nowrap;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.3s ease;opacity:0;pointer-events:none}
 .float-bar.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
 .modal-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0);backdrop-filter:blur(0px);display:flex;align-items:center;justify-content:center;transition:background 0.25s ease,backdrop-filter 0.25s ease;pointer-events:none}
@@ -40,6 +40,50 @@ button{font-family:'Montserrat',sans-serif}
 .modal-box{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:36px;width:360px;transform:scale(0.92) translateY(12px);opacity:0;transition:transform 0.3s cubic-bezier(0.22,1,0.36,1),opacity 0.25s ease}
 .modal-backdrop.open .modal-box{transform:scale(1) translateY(0);opacity:1}
 .cat-pill{cursor:pointer;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 13px;transition:all 0.15s ease;border:none;white-space:nowrap}
+/* Hover only on non-touch (pointer:fine = mouse) */
+@media(hover:hover) and (pointer:fine){
+  .prod-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,0.4)}
+}
+/* Active tap feedback for touch */
+.prod-card:active{transform:scale(0.97);transition-duration:0.05s}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  /* Header */
+  .mobile-header{flex-wrap:wrap!important;height:auto!important;padding:10px 14px!important;gap:8px!important}
+  .mobile-header .hdr-brand{font-size:14px!important}
+  .mobile-header .hdr-btns{width:100%;display:flex!important;justify-content:flex-end!important;gap:6px!important;flex-wrap:wrap!important}
+  .mobile-header .hdr-btns button{font-size:9px!important;padding:6px 10px!important}
+  /* Filter bar */
+  .mobile-filters{padding:8px 12px!important;gap:5px!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;top:auto!important;position:relative!important;flex-wrap:nowrap!important}
+  .mobile-filters::-webkit-scrollbar{display:none}
+  .mobile-filters .cat-pill{font-size:9px!important;padding:5px 10px!important;flex-shrink:0}
+  .mobile-filters input{width:140px!important;min-width:100px!important;flex-shrink:0;font-size:12px!important}
+  .mobile-filters .filter-count{display:none!important}
+  /* Grid */
+  .mobile-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;padding:0!important}
+  /* Cards */
+  .mobile-grid .prod-card .card-img{height:120px!important}
+  .mobile-grid .prod-card .card-info{padding:8px 10px 10px!important}
+  .mobile-grid .prod-card .card-info .card-name{font-size:13px!important}
+  .mobile-grid .prod-card .card-info .card-eyebrow{font-size:6px!important;letter-spacing:2px!important}
+  .mobile-grid .prod-card .cat-badge{font-size:6px!important;padding:1px 5px!important}
+  /* Float bar */
+  .float-bar{left:10px!important;right:10px!important;transform:translateY(80px)!important;padding:10px 14px!important;gap:10px!important;border-radius:16px!important;flex-wrap:wrap!important;justify-content:center!important;white-space:normal!important;bottom:12px!important}
+  .float-bar.show{transform:translateY(0)!important;opacity:1!important;pointer-events:auto!important}
+  .float-bar button{font-size:9px!important;padding:6px 12px!important}
+  /* Modal */
+  .modal-box{width:92%!important;max-width:360px!important;padding:24px 20px!important}
+  /* Proposal preview bar */
+  .mobile-propbar{flex-wrap:wrap!important;height:auto!important;padding:10px 14px!important;gap:8px!important;justify-content:center!important}
+  .mobile-propbar button{font-size:10px!important;padding:6px 14px!important}
+  .mobile-propbar span{font-size:8px!important}
+}
+@media(max-width:400px){
+  .mobile-grid{grid-template-columns:1fr!important}
+  .mobile-header .hdr-brand{font-size:12px!important;letter-spacing:0.15em!important}
+  .mobile-header .hdr-sub{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -55,7 +99,7 @@ button{font-family:'Montserrat',sans-serif}
 </div>
 <div id="root"></div>
 <script type="text/babel">
-const {useState,useMemo,useEffect} = React;
+const {useState,useMemo,useEffect,useCallback,memo} = React;
 const CDN="https://www.fratellocoffee.com/cdn/shop/files/";
 const GD="https://lh3.googleusercontent.com/d/";
 const TEAL="#2eb4af";
@@ -848,6 +892,130 @@ body::after{display:none!important}
 .prod-overflow{background:var(--cream);padding:32px 56px 24px;overflow:visible;page-break-before:always}
 .prod-overflow .prod-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--cream-deep);border-top:2px solid var(--teal);padding-top:12px;margin-bottom:24px}
 
+/* ══ MOBILE RESPONSIVE FOR PROPOSAL ══ */
+@media screen and (max-width:768px){
+  /* Cover */
+  .cover{padding:28px 20px;height:auto;min-height:100vh}
+  .cover-wordmark{font-size:42px;letter-spacing:0.18em}
+  .cover-stats{gap:24px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+  .cstat-n{font-size:32px}
+  .cover-sub{font-size:10px;letter-spacing:0.3em;margin-bottom:20px}
+  .cover-for{font-size:13px}
+  .cover-top-l,.cover-top-r{font-size:7px}
+  .cover-tagline{font-size:10px;letter-spacing:0.15em}
+
+  /* About page */
+  .about-page{grid-template-columns:1fr!important;height:auto!important;min-height:auto!important}
+  .about-left{padding:28px 20px!important}
+  .about-headline{font-size:28px!important}
+  .about-pull{font-size:15px!important}
+  .about-right{min-height:200px}
+
+  /* Diff bar */
+  .diff-bar{grid-template-columns:repeat(2,1fr)!important}
+  .diff-item{padding:18px 12px}
+
+  /* Chapter banners */
+  .chap{min-height:250px}
+  .chap-inner{padding:28px 20px!important;flex-direction:column}
+  .chap-title{font-size:36px!important}
+  .chap-body{font-size:13px!important;max-width:100%!important}
+  .chap-accent{font-size:60px!important;right:10px!important;bottom:-10px!important}
+
+  /* Product pages */
+  .prod-page,.tea-page,.prod-overflow{padding:20px 16px 16px!important}
+  .prod-hdr{flex-direction:column;gap:4px;align-items:flex-start}
+  .prod-hdr-title{font-size:18px!important}
+
+  /* Product grids - 2 columns max on mobile */
+  .pg-3,.pg-4{grid-template-columns:repeat(2,1fr)!important;gap:16px 12px!important}
+  .pg-2{grid-template-columns:repeat(2,1fr)!important;gap:16px 12px!important;max-width:100%!important}
+  .pg-1{padding:0!important}
+  .pg-1 .pc{max-width:100%!important}
+
+  /* Product cards in proposal */
+  .pc{padding:10px 6px 12px!important}
+  .pc-img{width:100px!important;height:120px!important;border-radius:8px!important}
+  .pc-img.nespresso-img{width:110px!important;height:130px!important}
+  .pc-name{font-size:14px!important}
+  .pc-name.sm{font-size:12px!important}
+  .pc-origin{font-size:8px!important;letter-spacing:1.5px!important}
+  .pc-vibe{font-size:12px!important}
+  .pc-desc{font-size:11px!important;max-width:100%!important;line-height:1.5!important}
+  .pc-eye{font-size:7px!important;letter-spacing:2px!important}
+
+  /* Hero product */
+  .pc-hero{grid-template-columns:1fr!important}
+  .pc-hero-img-wrap{padding:20px 16px 0!important}
+  .pc-hero-img-wrap img{width:180px!important}
+  .pc-hero-body{padding:20px 16px 24px!important}
+  .pc-hero-name{font-size:32px!important}
+  .pc-hero-desc{font-size:13px!important}
+
+  /* Tea grid */
+  .t-grid{grid-template-columns:repeat(2,1fr)!important;gap:16px 10px!important}
+  .tc-img{width:70px!important;height:90px!important}
+  .tc-name{font-size:12px!important}
+  .tc-desc{font-size:11px!important;max-width:100%!important}
+  .tc-origin{font-size:8px!important;max-width:100%!important}
+
+  /* Offering tables */
+  .tbl-hdr,.tbl-hdr-light{padding:20px 16px 14px!important}
+  .tbl-body{padding:14px 16px 24px!important}
+  .tbl-body-2col{padding:14px 16px 24px!important;grid-template-columns:1fr!important;gap:20px!important}
+  .otbl{font-size:11px!important}
+  .otbl thead tr th{font-size:7px!important;padding:7px 8px!important}
+  .otbl tbody tr td{padding:8px 8px!important;font-size:12px!important}
+  .tbl-foot,.tbl-foot-lt{padding:10px 16px!important}
+  .otbl-lt{font-size:11px!important}
+  .tbl-logo,.tbl-logo-dk{font-size:16px!important;letter-spacing:4px!important}
+
+  /* Order page */
+  .order-hdr{padding:20px 16px 14px!important}
+  .order-grid{padding:14px 16px 24px!important;grid-template-columns:1fr!important;gap:12px!important}
+  .o-blk{padding:16px!important}
+  .o-txt{font-size:12px!important}
+  .o-lead-row{font-size:11px!important}
+  .spec-tbl{font-size:10px!important}
+  .spec-tbl th{font-size:6px!important}
+
+  /* Thank you page */
+  .ty-page{padding:28px 20px 20px!important}
+  .ty-inner{grid-template-columns:1fr!important;gap:28px!important}
+  .ty-title{font-size:42px!important}
+  .ty-txt{font-size:12px!important}
+  .contact-card{padding:10px!important}
+  .contact-name{font-size:11px!important}
+  .contact-email{font-size:9px!important;word-break:break-all}
+  .contact-phone{font-size:9px!important}
+  .contact-role{font-size:6px!important}
+  .cbox-learn,.cbox-order{padding:12px 14px!important}
+
+  /* Back cover */
+  .back-cover{padding:36px 20px!important;min-height:60vh}
+  .bc-wordmark{font-size:42px!important;letter-spacing:0.18em!important}
+  .bc-tagline{font-size:10px!important;letter-spacing:0.15em!important}
+  .bc-address{font-size:7px!important}
+
+  /* Lightbox */
+  .lb-box{grid-template-columns:1fr!important;width:95%!important;max-height:90vh;overflow-y:auto}
+  .lb-img-wrap img{max-height:180px!important}
+  .lb-name{font-size:18px!important}
+
+  /* Coming soon */
+  .pc-coming-soon{width:100%!important;height:120px!important}
+  /* Contact grid */
+  .contact-grid{grid-template-columns:1fr!important;gap:6px!important}
+}
+@media screen and (max-width:400px){
+  .pg-3,.pg-4,.pg-2{grid-template-columns:1fr!important}
+  .t-grid{grid-template-columns:1fr!important}
+  .cover-stats{flex-direction:column;gap:16px}
+  .diff-bar{grid-template-columns:1fr!important}
+  .contact-card{display:block}
+  div[style*="grid-template-columns: 1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+}
+
 .otbl-light{width:100%;border-collapse:collapse;}
 .otbl-light thead tr th{background:#111;color:rgba(255,255,255,0.6);border-bottom:1px solid rgba(255,255,255,0.1);font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px 14px;text-align:left;}
 .otbl-light tbody tr td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:rgba(255,255,255,0.75);}
@@ -1204,7 +1372,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
     </div>
     <div>
       <div style="font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;margin-bottom:12px;">Your Contacts</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px;">
+      <div class="contact-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px;">
         <div class="contact-card">
           <div class="contact-name">Russ<br>Prefontaine</div>
           <div class="contact-role">President</div>
@@ -1295,28 +1463,26 @@ function RoastDots({n}){
   </div>;
 }
 
-function ProductCard({p,sel,onToggle,animDelay}){
+const ProductCard=memo(function ProductCard({p,sel,onToggle,animDelay}){
   const catInfo=CAT_CLR[p.cat]||"#333";
-  return <div className="card-enter" onClick={()=>onToggle(p.id)}
-    onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.boxShadow="0 6px 24px rgba(0,0,0,0.4)";}}
-    onMouseLeave={e=>{e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}
+  return <div className={"card-enter prod-card"+(sel?" prod-sel":"")} onClick={()=>onToggle(p.id)}
     style={{cursor:"pointer",borderRadius:10,overflow:"hidden",
       border:"2px solid "+(sel?"rgba(46,180,175,0.75)":"rgba(255,255,255,0.06)"),
       background:sel?"rgba(46,180,175,0.06)":"rgba(255,255,255,0.025)",
-      transition:"border-color 0.18s,background 0.18s",position:"relative",animationDelay:animDelay||"0ms"}}>
+      transition:"border-color 0.18s,background 0.18s,transform 0.18s,box-shadow 0.18s",position:"relative",animationDelay:animDelay||"0ms"}}>
     {sel&&<div style={{position:"absolute",top:9,right:9,zIndex:3,width:22,height:22,borderRadius:"50%",
       background:TEAL,display:"flex",alignItems:"center",justifyContent:"center",
       fontSize:12,color:"#fff",fontWeight:700,boxShadow:"0 2px 8px rgba(46,180,175,0.4)"}}>✓</div>}
     {p.comingSoon ? (
-      <div style={{height:155,background:"#111",display:"flex",flexDirection:"column",
+      <div className="card-img" style={{height:155,background:"#111",display:"flex",flexDirection:"column",
         alignItems:"center",justifyContent:"center",gap:8,position:"relative"}}>
-        <div style={{position:"absolute",top:8,left:8,background:catInfo,padding:"2px 7px",borderRadius:3,
+        <div className="cat-badge" style={{position:"absolute",top:8,left:8,background:catInfo,padding:"2px 7px",borderRadius:3,
           fontSize:7,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,0.88)"}}>{p.cat}</div>
         <div style={{fontSize:8,fontWeight:700,letterSpacing:4,textTransform:"uppercase",
           color:TEAL,border:"1px solid rgba(46,180,175,0.4)",borderRadius:4,padding:"5px 12px"}}>Coming Soon</div>
       </div>
     ) : (
-      <div style={{height:170,background:"#111",position:"relative",
+      <div className="card-img" style={{height:170,background:"#111",position:"relative",
         display:"flex",alignItems:"center",justifyContent:"center",padding:"10px 14px 10px"}}>
         <div style={{
           background:"#ffffff",
@@ -1333,14 +1499,14 @@ function ProductCard({p,sel,onToggle,animDelay}){
               e.target.style.display="none";
             }}/>
         </div>
-        <div style={{position:"absolute",top:6,left:6,background:catInfo,padding:"2px 7px",borderRadius:3,
+        <div className="cat-badge" style={{position:"absolute",top:6,left:6,background:catInfo,padding:"2px 7px",borderRadius:3,
           fontSize:7,fontWeight:700,letterSpacing:2,textTransform:"uppercase",
           color:"rgba(255,255,255,0.9)",zIndex:2}}>{p.cat}</div>
       </div>
     )}
-    <div style={{padding:"12px 13px 14px"}}>
-      <div style={{fontSize:7,letterSpacing:3,textTransform:"uppercase",color:TEAL,marginBottom:3}}>{p.eyebrow}</div>
-      <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontWeight:600,color:"#fff",lineHeight:1.2,marginBottom:2}}>{p.name}</div>
+    <div className="card-info" style={{padding:"12px 13px 14px"}}>
+      <div className="card-eyebrow" style={{fontSize:7,letterSpacing:3,textTransform:"uppercase",color:TEAL,marginBottom:3}}>{p.eyebrow}</div>
+      <div className="card-name" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontWeight:600,color:"#fff",lineHeight:1.2,marginBottom:2}}>{p.name}</div>
       <div style={{fontSize:10,color:"rgba(255,255,255,0.38)",marginBottom:5}}>{p.origin}</div>
       <div style={{fontSize:10,fontStyle:"italic",color:TEAL}}>— {p.vibe} —</div>
       {p.roast>0&&<div style={{display:"flex",alignItems:"center",gap:4,marginTop:8}}>
@@ -1353,7 +1519,7 @@ function ProductCard({p,sel,onToggle,animDelay}){
       </div>
     </div>
   </div>;
-}
+});
 
 function CategoryRow({cat,products,selected,onToggleGroup}){
   const ids=products.map(p=>p.id);
@@ -1400,26 +1566,31 @@ function App(){
   const [modalOpen,setModalOpen]=useState(false);
   const [linkCopied,setLinkCopied]=useState(false);
 
-  // ── Sync selection to URL (without reload) ──
+  // ── Sync selection to URL (without reload) — skip if too many products to avoid browser crashes ──
   useEffect(()=>{
-    const params=new URLSearchParams();
-    if(selected.size>0) params.set('p',[...selected].join(','));
-    if(clientName) params.set('client',clientName);
-    const qs=params.toString();
-    const newUrl=window.location.pathname+(qs?'?'+qs:'');
-    window.history.replaceState(null,'',newUrl);
+    try{
+      const params=new URLSearchParams();
+      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(clientName) params.set('client',clientName);
+      const qs=params.toString();
+      const newUrl=window.location.pathname+(qs?'?'+qs:'');
+      window.history.replaceState(null,'',newUrl);
+    }catch(e){/* silently fail on in-app browsers */}
   },[selected,clientName]);
 
   // ── Copy shareable link ──
   const copyShareLink=()=>{
-    const params=new URLSearchParams();
-    if(selected.size>0) params.set('p',[...selected].join(','));
-    if(clientName) params.set('client',clientName);
-    const url=window.location.origin+window.location.pathname+'?'+params.toString();
-    navigator.clipboard.writeText(url).then(()=>{
-      setLinkCopied(true);
-      setTimeout(()=>setLinkCopied(false),2000);
-    });
+    try{
+      const params=new URLSearchParams();
+      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(clientName) params.set('client',clientName);
+      const url=window.location.origin+window.location.pathname+'?'+params.toString();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(()=>{
+          setLinkCopied(true);setTimeout(()=>setLinkCopied(false),2000);
+        }).catch(()=>{prompt("Copy this link:",url);});
+      }else{prompt("Copy this link:",url);}
+    }catch(e){alert("Could not copy link");}
   };
 
   useEffect(()=>{
@@ -1455,7 +1626,7 @@ function App(){
 
   const selectedProducts=PRODUCTS.filter(p=>selected.has(p.id));
 
-  const toggle=id=>setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n});
+  const toggle=useCallback(id=>setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n}),[]);
 
   const toggleGroup=cat=>{
     const ids=PRODUCTS.filter(p=>p.cat===cat).map(p=>p.id);
@@ -1508,14 +1679,14 @@ function App(){
   if(view==="proposal"){
     return(
       <div style={{position:"fixed",inset:0,background:"#fff",zIndex:9999,display:"flex",flexDirection:"column"}}>
-        <div style={{height:52,background:"#0d0d0d",display:"flex",alignItems:"center",
+        <div className="mobile-propbar" style={{height:52,background:"#0d0d0d",display:"flex",alignItems:"center",
           justifyContent:"space-between",padding:"0 24px",flexShrink:0,
           borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
           <button onClick={()=>setView("catalog")} style={{
             cursor:"pointer",background:"none",border:"1px solid rgba(255,255,255,0.15)",
             borderRadius:6,padding:"7px 16px",color:"rgba(255,255,255,0.6)",
             fontSize:11,letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
-            ← Edit Selection
+            ← Edit
           </button>
           <span style={{color:"rgba(255,255,255,0.3)",fontSize:9,letterSpacing:3,
             textTransform:"uppercase",fontFamily:"'Montserrat',sans-serif"}}>
@@ -1528,7 +1699,7 @@ function App(){
             cursor:"pointer",background:TEAL,border:"none",borderRadius:6,
             padding:"8px 20px",color:"#fff",fontSize:11,fontWeight:700,
             letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
-            Save as PDF ↓
+            Save PDF ↓
           </button>
         </div>
         <iframe id="prop-frame" srcDoc={proposalHTML}
@@ -1540,13 +1711,13 @@ function App(){
 
   return <div style={{background:"#0d0d0d",minHeight:"100vh",color:"#fff"}}>
     {/* Header */}
-    <div style={{height:54,padding:"0 22px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.8)",position:"sticky",top:0,zIndex:50,backdropFilter:"blur(10px)"}}>
+    <div className="mobile-header" style={{height:54,padding:"0 22px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.8)",position:"sticky",top:0,zIndex:50,backdropFilter:"blur(10px)"}}>
       <div style={{display:"flex",alignItems:"center",gap:11}}>
-        <div style={{fontSize:16,fontWeight:900,letterSpacing:"0.22em",color:"#fff"}}>FRATELLO</div>
+        <div className="hdr-brand" style={{fontSize:16,fontWeight:900,letterSpacing:"0.22em",color:"#fff"}}>FRATELLO</div>
         <div style={{width:1,height:17,background:"rgba(255,255,255,0.1)"}}/>
-        <div style={{fontSize:8,letterSpacing:3,color:TEAL,textTransform:"uppercase"}}>Proposal Builder</div>
+        <div className="hdr-sub" style={{fontSize:8,letterSpacing:3,color:TEAL,textTransform:"uppercase"}}>Proposal Builder</div>
       </div>
-      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+      <div className="hdr-btns" style={{display:"flex",gap:8,alignItems:"center"}}>
         {selected.size>0&&<button onClick={()=>setSelected(new Set())} style={{...btn,background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.4)"}}>Clear</button>}
         {selected.size>0&&<button onClick={copyShareLink} style={{...btn,background:linkCopied?"rgba(46,180,175,0.2)":"rgba(255,255,255,0.06)",color:linkCopied?TEAL:"rgba(255,255,255,0.4)",border:linkCopied?"1px solid rgba(46,180,175,0.4)":"1px solid transparent",transition:"all 0.2s"}}>
           {linkCopied?"\u2713 Link Copied":"Copy Link"}
@@ -1581,34 +1752,34 @@ function App(){
     </div>}
 
     {/* Filters */}
-    <div style={{padding:"11px 22px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",background:"rgba(255,255,255,0.01)",borderBottom:"1px solid rgba(255,255,255,0.05)",position:"sticky",top:54,zIndex:40,backdropFilter:"blur(8px)"}}>
-      <button onClick={toggleSelectAll} style={{cursor:"pointer",background:allSelected?"rgba(46,180,175,0.18)":"rgba(255,255,255,0.06)",border:"1px solid "+(allSelected?"rgba(46,180,175,0.5)":"rgba(255,255,255,0.12)"),borderRadius:6,padding:"7px 16px",color:allSelected?"#2eb4af":"rgba(255,255,255,0.55)",fontSize:10,fontWeight:700,letterSpacing:1,whiteSpace:"nowrap",flexShrink:0,transition:"all 0.15s"}}>
+    <div className="mobile-filters" style={{padding:"11px 22px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",background:"rgba(255,255,255,0.01)",borderBottom:"1px solid rgba(255,255,255,0.05)",position:"sticky",top:54,zIndex:40,backdropFilter:"blur(8px)"}}>
+      <button onClick={toggleSelectAll} className="cat-pill" style={{cursor:"pointer",background:allSelected?"rgba(46,180,175,0.18)":"rgba(255,255,255,0.06)",border:"1px solid "+(allSelected?"rgba(46,180,175,0.5)":"rgba(255,255,255,0.12)"),borderRadius:6,padding:"7px 16px",color:allSelected?"#2eb4af":"rgba(255,255,255,0.55)",fontSize:10,fontWeight:700,letterSpacing:1,whiteSpace:"nowrap",flexShrink:0,transition:"all 0.15s"}}>
         {allSelected ? "✓ All Selected" : "Select All"}
       </button>
       <div style={{width:1,height:18,background:"rgba(255,255,255,0.1)",flexShrink:0}}/>
             <input id="search-input" value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search products... ( / )' style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:6,padding:"7px 13px",color:"#fff",fontSize:11,width:220,fontFamily:"'Montserrat',sans-serif"}}/>
       {pill("All",activeCat==="All",()=>setActiveCat("All"),PRODUCTS.length)}
       {CATS.map(c=>pill(c,activeCat===c,()=>setActiveCat(c),catCounts[c]))}
-      <div style={{marginLeft:"auto",fontSize:9,letterSpacing:2,color:"rgba(255,255,255,0.18)",textTransform:"uppercase"}}>
+      <div className="filter-count" style={{marginLeft:"auto",fontSize:9,letterSpacing:2,color:"rgba(255,255,255,0.18)",textTransform:"uppercase"}}>
         {filtered.length} products{selected.size>0&&<span style={{color:TEAL}}> · {selected.size} selected</span>}
       </div>
     </div>
 
     {/* Grid */}
-    <div style={{padding:"20px 22px 100px"}}>
+    <div style={{padding:"20px 12px 100px"}}>
       {groupedByCategory?(()=>{
         const cats=Object.entries(groupedByCategory);
         return(<>
           {cats.map(([cat,items])=><div key={cat} style={{marginBottom:36}}>
             <CategoryRow cat={cat} products={items} selected={selected} onToggleGroup={toggleGroup}/>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(195px,1fr))",gap:11}}>
+            <div className="mobile-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:11}}>
               {items.map((p,i)=><ProductCard key={p.id} p={p} sel={selected.has(p.id)} onToggle={toggle} animDelay={`${i*35}ms`}/>)}
             </div>
           </div>)}
         </>);
       })():
       <><div style={{marginBottom:16}}><CategoryRow cat={activeCat} products={filtered} selected={selected} onToggleGroup={toggleGroup}/></div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(195px,1fr))",gap:11}}>
+      <div className="mobile-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:11}}>
         {filtered.map((p,i)=><ProductCard key={p.id} p={p} sel={selected.has(p.id)} onToggle={toggle} animDelay={`${i*30}ms`}/>)}
         {filtered.length===0&&<div style={{gridColumn:"1/-1",textAlign:"center",padding:"80px 0",color:"rgba(255,255,255,0.15)",fontSize:13}}>No products match your search.</div>}
       </div></>}
