@@ -1344,24 +1344,22 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
 
   // ── ORDER INFORMATION ───────────────────────────────────────────────────────
   const orderPage=`<div class="order-page">
-  <div class="order-hdr"><div class="tbl-logo-dk">FRATELLO</div><div class="tbl-sep-dk"></div><div class="tbl-heading">Order Information</div></div>
+  <div class="order-hdr"><div class="tbl-logo-dk" style="color:#000">FRATELLO</div><div class="tbl-sep-dk" style="background:#DDD6C4"></div><div class="tbl-heading">Order Information</div></div>
   <div class="order-grid">
     <div class="o-blk">
-      <div class="o-ttl">Order Fulfillment Process</div>
-      <p class="o-txt">To place an order, email <strong>orderdesk@fratellocoffee.com</strong></p>
-      <p class="o-txt">Orders must be placed before the daily cut-off time of <strong>2:00 pm MST</strong>. Orders after cut-off are considered the following day&rsquo;s order.</p>
+      <div class="o-ttl">Estimated Order Completion Times</div>
       <div style="margin-top:14px;">
-        <div class="o-lead-row"><span>12 oz bags</span><span>2 business days</span></div>
+        <div class="o-lead-row"><span>12 oz bags</span><span>1 business day</span></div>
+        <div class="o-lead-row"><span>Whole bean stock coffee</span><span>1 business day</span></div>
         <div class="o-lead-row"><span>Ground coffee</span><span>2 business days</span></div>
-        <div class="o-lead-row"><span>Whole bean stock coffee</span><span>2 business days</span></div>
-        <div class="o-lead-row"><span>Special requests / special sizes</span><span>2 &ndash; 4 business days</span></div>
-        <div class="o-lead-row"><span>Portion pack coffee</span><span>10 &ndash; 15 business days</span></div>
+        <div class="o-lead-row"><span>Special requests</span><span>5 business days</span></div>
+        <div class="o-lead-row"><span>Portion pack</span><span>10 business days</span></div>
       </div>
     </div>
     <div class="o-blk">
       <div class="o-ttl">Case Specifications</div>
       <table class="spec-tbl"><thead><tr><th>Bag Type</th><th>12 OZ</th><th>2 LB</th><th>Portion Pack</th></tr></thead>
-      <tbody><tr><td>Bags per Case</td><td>20</td><td>15</td><td>42 (2.5 oz)</td></tr><tr><td>Case Weight</td><td>15 LB</td><td>30 LB</td><td>6.56 LB</td></tr><tr><td>Case Dimensions</td><td>18&Prime;&times;12&Prime;&times;10&Prime;</td><td>18&Prime;&times;12&Prime;&times;16&Prime;</td><td>13&Prime;&times;13&Prime;&times;11&Prime;</td></tr></tbody></table>
+      <tbody><tr><td>Bags per Case</td><td>6</td><td>10</td><td>42 (2.5 oz)</td></tr><tr><td>Case Weight</td><td>4.5 LB</td><td>20 LB</td><td>6.56 LB</td></tr><tr><td>Case Dimensions</td><td>9&Prime;&times;9&Prime;&times;9&Prime;</td><td>18&Prime;&times;12&Prime;&times;10&Prime;</td><td>13&Prime;&times;13&Prime;&times;11&Prime;</td></tr></tbody></table>
       <div class="o-ttl" style="margin-top:22px;">Order Minimums</div>
       <div class="o-lead-row"><span>12 oz &amp; 2 lb bags</span><span>2 cases per SKU</span></div>
       <div class="o-lead-row"><span>Portion packs</span><span>20 cases per SKU</span></div>
