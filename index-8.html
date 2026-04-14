@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fratello Coffee — Proposal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:'Montserrat',sans-serif;background:#0d0d0d;color:#fff;overflow-x:hidden}
+::-webkit-scrollbar{width:3px;background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(46,180,175,0.25);border-radius:2px}
+input::placeholder{color:rgba(255,255,255,0.22)}
+input:focus{outline:none!important}
+button{font-family:'Montserrat',sans-serif}
+#splash{position:fixed;inset:0;z-index:9999;background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.7s ease,visibility 0.7s ease}
+#splash.out{opacity:0;visibility:hidden;pointer-events:none}
+.splash-logo{font-size:clamp(42px,9vw,88px);font-weight:900;letter-spacing:0.26em;color:#fff;text-transform:uppercase;opacity:0;transform:translateY(18px);animation:fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.2s forwards}
+.splash-rule{width:0;height:1px;background:#2eb4af;opacity:0.5;animation:expandRule 0.7s ease 0.9s forwards;margin:24px 0}
+.splash-sub{font-size:11px;font-style:italic;letter-spacing:0.4em;color:rgba(255,255,255,0.4);text-transform:uppercase;font-family:'Cormorant Garamond',serif;opacity:0;animation:fadeUp 0.7s ease 1.1s forwards}
+.splash-dots{display:flex;gap:6px;margin-top:48px;opacity:0;animation:fadeUp 0.5s ease 1.4s forwards}
+.splash-dot{width:5px;height:5px;border-radius:50%;background:rgba(46,180,175,0.35);animation:pulse 1.2s ease infinite}
+.splash-dot:nth-child(2){animation-delay:0.2s}
+.splash-dot:nth-child(3){animation-delay:0.4s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+@keyframes expandRule{to{width:72px}}
+@keyframes pulse{0%,100%{background:rgba(46,180,175,0.25);transform:scale(1)}50%{background:#2eb4af;transform:scale(1.3)}}
+.card-enter{animation:cardIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:none}}
+.float-bar{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;border:1px solid rgba(46,180,175,0.35);border-radius:40px;padding:11px 22px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(0,0,0,0.7);z-index:100;white-space:nowrap;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.3s ease;opacity:0;pointer-events:none}
+.float-bar.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.modal-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0);backdrop-filter:blur(0px);display:flex;align-items:center;justify-content:center;transition:background 0.25s ease,backdrop-filter 0.25s ease;pointer-events:none}
+.modal-backdrop.open{background:rgba(0,0,0,0.82);backdrop-filter:blur(4px);pointer-events:auto}
+.modal-box{background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:36px;width:360px;transform:scale(0.92) translateY(12px);opacity:0;transition:transform 0.3s cubic-bezier(0.22,1,0.36,1),opacity 0.25s ease}
+.modal-backdrop.open .modal-box{transform:scale(1) translateY(0);opacity:1}
+.cat-pill{cursor:pointer;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:1px;padding:6px 13px;transition:all 0.15s ease;border:none;white-space:nowrap}
+/* Hover only on non-touch (pointer:fine = mouse) */
+@media(hover:hover) and (pointer:fine){
+  .prod-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,0.4)}
+}
+/* Active tap feedback for touch */
+.prod-card:active{transform:scale(0.97);transition-duration:0.05s}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  /* Header */
+  .mobile-header{flex-wrap:wrap!important;height:auto!important;padding:10px 14px!important;gap:8px!important}
+  .mobile-header .hdr-brand{font-size:14px!important}
+  .mobile-header .hdr-btns{width:100%;display:flex!important;justify-content:flex-end!important;gap:6px!important;flex-wrap:wrap!important}
+  .mobile-header .hdr-btns button{font-size:9px!important;padding:6px 10px!important}
+  /* Filter bar */
+  .mobile-filters{padding:8px 12px!important;gap:5px!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;top:auto!important;position:relative!important;flex-wrap:nowrap!important}
+  .mobile-filters::-webkit-scrollbar{display:none}
+  .mobile-filters .cat-pill{font-size:9px!important;padding:5px 10px!important;flex-shrink:0}
+  .mobile-filters input{width:140px!important;min-width:100px!important;flex-shrink:0;font-size:12px!important}
+  .mobile-filters .filter-count{display:none!important}
+  /* Grid */
+  .mobile-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px!important;padding:0!important}
+  /* Cards */
+  .mobile-grid .prod-card .card-img{height:120px!important}
+  .mobile-grid .prod-card .card-info{padding:8px 10px 10px!important}
+  .mobile-grid .prod-card .card-info .card-name{font-size:13px!important}
+  .mobile-grid .prod-card .card-info .card-eyebrow{font-size:6px!important;letter-spacing:2px!important}
+  .mobile-grid .prod-card .cat-badge{font-size:6px!important;padding:1px 5px!important}
+  /* Float bar */
+  .float-bar{left:10px!important;right:10px!important;transform:translateY(80px)!important;padding:10px 14px!important;gap:10px!important;border-radius:16px!important;flex-wrap:wrap!important;justify-content:center!important;white-space:normal!important;bottom:12px!important}
+  .float-bar.show{transform:translateY(0)!important;opacity:1!important;pointer-events:auto!important}
+  .float-bar button{font-size:9px!important;padding:6px 12px!important}
+  /* Modal */
+  .modal-box{width:92%!important;max-width:360px!important;padding:24px 20px!important}
+  /* Proposal preview bar */
+  .mobile-propbar{flex-wrap:wrap!important;height:auto!important;padding:10px 14px!important;gap:8px!important;justify-content:center!important}
+  .mobile-propbar button{font-size:10px!important;padding:6px 14px!important}
+  .mobile-propbar span{font-size:8px!important}
+}
+@media(max-width:400px){
+  .mobile-grid{grid-template-columns:1fr!important}
+  .mobile-header .hdr-brand{font-size:12px!important;letter-spacing:0.15em!important}
+  .mobile-header .hdr-sub{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="splash">
+  <div class="splash-logo">FRATELLO</div>
+  <div class="splash-rule"></div>
+  <div class="splash-sub">Proposal Builder</div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+    <div class="splash-dot"></div>
+  </div>
+</div>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useMemo,useEffect,useCallback,memo} = React;
+const CDN="https://www.fratellocoffee.com/cdn/shop/files/";
+const GD="https://lh3.googleusercontent.com/d/";
+const TEAL="#2eb4af";
+
+const CAT_CLR={"Espresso":"#1A1A1A","Single Origin":"#2D5016","Organic":"#3A7D44","Blends":"#4A4A4A","Nespresso":"#1B1B2F","Tea":"#5B3427","Syrups & Sauces":"#006D77","Specialty Drink Mixes":"#4A2060","Milk Alternatives":"#1B4F72"};
+const CAT_ORDER=["Espresso","Single Origin","Organic","Blends","Nespresso","Tea","Syrups & Sauces","Specialty Drink Mixes","Milk Alternatives"];
+
+const FRATELLO_YEARS=new Date().getFullYear()-1973;
+const CAT_META={
+  "Espresso":{eyebrow:"Top Selling Products",title:"The Godfather",italic:"Espresso",body:"Our flagship espresso blend - refined over five decades into an icon. Thick caramel, milk chocolate, and a lingering warmth that makes every cup unmistakably Fratello.",accent:"Godfather",bg:`https://lh3.googleusercontent.com/d/18T_6MuO5znCobqGnvPOYYD4Ld9-t4AIY`,bgPos:"center 40%",heroId:"B1610"},
+  "Single Origin":{eyebrow:"Origin Series",title:"Direct Trade &amp;",italic:"Single Origin",body:"Built on real relationships. Over 90% of our coffees are sourced directly from farmers we know by name - from the highlands of Colombia to the mountains of Myanmar.",accent:"Origin",bg:`https://lh3.googleusercontent.com/d/176DdGXH7yA9Q4oaLtPe6FIcZ02SVECoC`,bgPos:"center center",heroId:null},
+  "Organic":{eyebrow:"Certified Organic",title:"Organic",italic:"Coffee",
+    body:"Grown without compromise. Certified organic farming practices paired with the same exacting standards of flavor and freshness that define every Fratello roast.",
+    accent:"Organic",bg:`https://lh3.googleusercontent.com/d/1feN-ORMUgKe-e8F3OYzzErOR5QX1Ggkd`,bgPos:"center 40%",heroId:null},
+  "Blends":{eyebrow:"Bold &amp; Satisfying",title:"Medium &amp;",italic:"Dark Roast",body:"Full-bodied, rich, and deeply satisfying. Our blends speak to those who want substance in every cup - chocolate, caramel, smoke, and character.",accent:"Dark",bg:`https://lh3.googleusercontent.com/d/1Usueh9eFvDMJpASkPh67K6EXdO0YHben`,bgPos:"center center",heroId:null},
+  "Nespresso":{eyebrow:"Nespresso Compatible",title:"Original",italic:"Capsules",body:"All the depth and character of Fratello - now in 100% recyclable aluminum capsules compatible with Nespresso Original Line machines.",accent:"Capsules",bg:`https://lh3.googleusercontent.com/d/1OUUnSuetv2G6RkuRa962Vh_yjl_C0Shm`,bgPos:"center center",heroId:null},
+  "Tea":{eyebrow:"Idle Tea Collection",title:"Tea &amp;",italic:"Beverages",body:"A world beyond coffee. Curated loose leaf blends, alternative lattes, and artisanal chai concentrates - a complete beverage offering for every guest.",accent:"Idle Tea",bg:`https://lh3.googleusercontent.com/d/1KShEQ4rcEDHJgCr9OAvQV29ifCiqspGG`,bgPos:"center center",heroId:null},
+  "Syrups & Sauces":{eyebrow:"Premium Flavours",title:"Syrups &amp;",italic:"Sauces",
+    body:"Premium flavour enhancers for every cafe program - from 1883's full syrup range to artisan chocolate sauces.",
+    accent:"Syrups",bg:`https://lh3.googleusercontent.com/d/1UQ5jp1DVcyRkUWCg9g9LLm1P_zDXNsPV`,bgPos:"center 60%",heroId:null},
+  "Specialty Drink Mixes":{eyebrow:"Specialty Beverages &amp; Functional Drinks",title:"Specialty",italic:"Drink Mixes",
+    body:"Beyond coffee. Functional mushroom blends, fruit refreshers, and nutrition drinks to complete your beverage program.",
+    accent:"Specialty",bg:`https://lh3.googleusercontent.com/d/1p0AxinD0MY1YVsonBlcm8OkFTZzp3rnO`,bgPos:"center center",heroId:null},
+  "Milk Alternatives":{eyebrow:"Barista Milk Alternatives",title:"Milk",italic:"Alternatives",
+    body:"Barista-grade plant-based milks that steam and foam flawlessly. Non-GMO oat and almond options for every cafe program.",
+    accent:"Barista",bg:`https://lh3.googleusercontent.com/d/1rLGrnxrqMjLW7NVg_qXXNJU0d69oCk2x`,bgPos:"center center",heroId:null},
+};
+
+const PRODUCTS=[
+
+  // ══ ESPRESSO — 3 products ═══════════════════════════════════
+  { id:"B1610", cat:"Espresso", comingSoon:false,
+    eyebrow:"Signature Blend · Classic", name:"Godfather Espresso Classic",
+    origin:"Medium Roast · Best Seller", vibe:"Smooth + Rich",
+    desc:"Thick caramel aromas, with milk chocolate and sweet flavors. A well balanced body with a lingering caramel aftertaste.",
+    roast:3, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/fratello-coffee-godfather-classic-best-seller_550x.webp?v=1739240314" },
+
+  { id:"B1620", cat:"Espresso", comingSoon:false,
+    eyebrow:"Signature Blend · Dark Roast", name:"Godfather Espresso Dark",
+    origin:"Dark Roast", vibe:"Creamy + Dark",
+    desc:"Rounded and creamy with notes of chocolate fudge and dark toffee.",
+    roast:4, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Godfather-Dark_33d18a3b-73f4-421a-b4e1-378b65114c3f_550x.webp?v=1739241560" },
+
+  { id:"B1630", cat:"Espresso", comingSoon:false,
+    eyebrow:"Naturally Decaffeinated", name:"Godfather Espresso Decaf",
+    origin:"Natural Decaf", vibe:"Sweet + Nutty",
+    desc:"A full-body decaf with a smooth finish. Notes of dark chocolate, complemented by sweet and mild notes of roasted nuts and caramel.",
+    roast:2, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Godfather-Decaf_550x.webp?v=1739241560" },
+
+
+  // ══ SINGLE ORIGIN — 6 products ═══════════════════════════════════
+  { id:"B1200", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin", name:"Brazil",
+    origin:"Campo das Vertentes", vibe:"Sweet + Nutty",
+    desc:"Mellow and sugary with notes of praline and roasted chestnut.",
+    roast:2, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/IMG_3911_550x.png?v=1738890922" },
+
+  { id:"B1400", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin", name:"Colombia",
+    origin:"Bolivar - Carnaval", vibe:"Sweet + Caramelly",
+    desc:"Sweet and citrusy with notes of caramel and honey.",
+    roast:2, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/new-Colombia-Bolivar_550x.webp?v=1739241560" },
+
+  { id:"B1380", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin · Decaf", name:"Colombia",
+    origin:"Naturally Decaffeinated", vibe:"Smooth + Sugary",
+    desc:"A nutty aroma with a dark chocolate taste. A heavy body that finishes very clean.",
+    roast:3, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Colombia-Decaf-1_550x.webp?v=1739241560" },
+
+  { id:"B1415", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin", name:"Costa Rica",
+    origin:"El Poeta", vibe:"Mellow + Nutty",
+    desc:"Mellow and silky with notes of citrus fruit and mixed nuts.",
+    roast:2, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Fratello-CostaRica-ElPoeta12oz_550x.png?v=1709248914" },
+
+  { id:"B1560", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin", name:"Ethiopia",
+    origin:"Guji Uraga", vibe:"Juicy + Bright",
+    desc:"Notes of watermelon and lemon are prominent in this fruity African coffee. Has a lingering and syrupy finish.",
+    roast:1, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Ethiopia-GujiUraga_550x.webp?v=1690579876" },
+
+  { id:"B2260", cat:"Single Origin", comingSoon:false,
+    eyebrow:"Single Origin", name:"Guatemala",
+    origin:"Montecristo Estate", vibe:"Balanced + Smooth",
+    desc:"Balanced and smooth with notes of molasses and cocoa.",
+    roast:2, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Guatemala-Montecristo_550x.webp?v=1690579850" },
+
+
+  // ══ ORGANIC — 2 products ═══════════════════════════════════
+  { id:"B6020", cat:"Organic", comingSoon:false,
+    eyebrow:"Single Origin · Natural", name:"Ethiopia",
+    origin:"Daye Bensa", vibe:"Fruity + Full Body",
+    desc:"Delicate and full-bodied with notes of red berry and lemonade.",
+    roast:1, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Ethiopia_340g-Fratello_550x.png?v=1772579438" },
+
+  { id:"B2200", cat:"Organic", comingSoon:false,
+    eyebrow:"Organic · Espresso", name:"Habitat Organic Espresso",
+    origin:"Medium Organic Blend", vibe:"Clean + Balanced",
+    desc:"A clean and balanced coffee, with notes of caramel and hazelnut.",
+    roast:3, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://lh3.googleusercontent.com/d/1napxZlcVzbk0Fx2ceT1JztdZ1F8_HTrV" },
+
+
+  // ══ BLENDS — 12 products ═══════════════════════════════════
+  { id:"B1000", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Light", name:"Acid Jazz",
+    origin:"Central America & Africa", vibe:"Soft + Smooth",
+    desc:"Soft and smooth with notes of apple acidity and brown sugar.",
+    roast:2, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://lh3.googleusercontent.com/d/19O9VCag99dwwX9-RM78TIhPLhrqW7Euw" },
+
+  { id:"B1210", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Medium", name:"Bull Rider",
+    origin:"South America Blend", vibe:"Full Body + Caramelly",
+    desc:"Deep chocolate and caramel aromas, with a clean body and spiced cocoa flavor.",
+    roast:4, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/12oz_467074d4-3e9d-44ba-99de-def72c0db5f7_550x.png?v=1713472058" },
+
+  { id:"D3000", cat:"Blends", comingSoon:false,
+    eyebrow:"House Blend · Light Roast", name:"DeVina Artisan Coffee",
+    origin:"Light Roast · Case of 4 x 5 lb", vibe:"Light + Clean",
+    desc:"Artisan light roast blend, available in bulk format for high-volume café programs.",
+    roast:2, sizes:["Case of 4 x 5 lb"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/DeVina_Artisan_Coffee_-_Light_Roast_-_4_x_5_lb.jpg?v=1775845611" },
+
+  { id:"D4000", cat:"Blends", comingSoon:false,
+    eyebrow:"House Blend · Medium Roast", name:"DeVina Artisan Coffee",
+    origin:"Medium Roast · Case of 4 x 5 lb", vibe:"Balanced + Smooth",
+    desc:"Artisan medium roast blend, available in bulk format for high-volume café programs.",
+    roast:3, sizes:["Case of 4 x 5 lb"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/DeVina_Artisan_Coffee_-_Medium_Roast_-_4_x_5_lb.jpg?v=1775845611" },
+
+  { id:"D5000", cat:"Blends", comingSoon:false,
+    eyebrow:"House Blend · Dark Roast", name:"DeVina Artisan Coffee",
+    origin:"Dark Roast · Case of 4 x 5 lb", vibe:"Bold + Full Body",
+    desc:"Artisan dark roast blend, available in bulk format for high-volume café programs.",
+    roast:5, sizes:["Case of 4 x 5 lb"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/DeVina_Artisan_Coffee_-_Dark_Roast_-_4_x_5_lb.jpg?v=1775845611" },
+
+  { id:"D6000", cat:"Blends", comingSoon:false,
+    eyebrow:"House Blend · Espresso", name:"DeVina Artisan Coffee",
+    origin:"Espresso Blend · Case of 4 x 5 lb", vibe:"Rich + Crema",
+    desc:"Artisan espresso blend, available in bulk format for high-volume café programs.",
+    roast:4, sizes:["Case of 4 x 5 lb"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/DeVina_Artisan_Coffee_-_Espresso_Blend_-_4_x_5_lb.jpg?v=1775845611" },
+
+  { id:"B1430", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Dark", name:"French Saigon Dark",
+    origin:"South America Blend", vibe:"Rich + Velvety",
+    desc:"Rich aromas and dark chocolate flavors, with a buttery clean finish.",
+    roast:5, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/12oz_c9839df9-f1b5-4e27-9c91-fe9925a6224d_550x.png?v=1739241560" },
+
+  { id:"B1670", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Dark", name:"Gun Smoke",
+    origin:"Asia + South America", vibe:"Bold + Earthy",
+    desc:"Pipe tobacco aroma with dark chocolate flavors, finishes with a smoky aftertaste.",
+    roast:5, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/12oz_50bfa32f-3d76-4d5a-91c1-84e7796740db_550x.png?v=1714083247" },
+
+  { id:"B1920", cat:"Blends", comingSoon:false,
+    eyebrow:"Dark Espresso Blend", name:"Midnight Espresso",
+    origin:"Central & South America Blend", vibe:"Bold + Bittersweet",
+    desc:"Hints of dark chocolate and molasses, a low acidity and licorice-like finish.",
+    roast:5, sizes:["12 oz","2 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/12oz_533x.png?v=1713471124" },
+
+  { id:"B1930", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Medium", name:"Moca Arabica",
+    origin:"Central & South America", vibe:"Colorful + Harmonious",
+    desc:"Sweet molasses with coriander flavors, a creamy body with a slightly smoky aftertaste.",
+    roast:4, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Moca-Arabica_550x.webp?v=1690579868" },
+
+  { id:"B2120", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Light", name:"Outlaw",
+    origin:"Central & South America", vibe:"Mild Citrus + Nutty",
+    desc:"Mild citrus and tobacco aromas complement a syrupy body with white chocolate flavors and a clean finish.",
+    roast:2, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Outlaw_550x.webp?v=1690579860" },
+
+  { id:"B2450", cat:"Blends", comingSoon:false,
+    eyebrow:"Blend · Dark", name:"West Coast",
+    origin:"South America Blend", vibe:"Creamy + Lingering",
+    desc:"Deep roasted nut aroma with dark chocolate and tobacco flavors, finishing with a lingering oak aftertaste.",
+    roast:5, sizes:["12 oz","5 lb","42×2.5 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Westcoast_550x.webp?v=1690579862" },
+
+
+  // ══ NESPRESSO — 4 products ═══════════════════════════════════
+  { id:"N1610", cat:"Nespresso", comingSoon:false,
+    eyebrow:"Original Nespresso Compatible · Medium", name:"CLASSIC Godfather",
+    origin:"Aluminum Capsules", vibe:"Smooth + Rich",
+    desc:"Full-bodied, chocolatey depth with smooth caramel notes and velvety crema. 100% recyclable aluminum capsules.",
+    roast:3, sizes:["Sleeve (10 capsules)","Carton (10 sleeves)"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Fratello_Coffee_Nescafe_shoot-122_3ee476b9-5a80-400e-af13-d598a6b76c7d_550x.jpg?v=1760558910" },
+
+  { id:"N1620", cat:"Nespresso", comingSoon:false,
+    eyebrow:"Original Nespresso Compatible · Dark", name:"DARK Godfather",
+    origin:"Aluminum Capsules", vibe:"Bold + Intense",
+    desc:"Dark chocolate notes, heavy body, and a lingering smoky finish. 100% recyclable aluminum capsules.",
+    roast:4, sizes:["Sleeve (10 capsules)","Carton (10 sleeves)"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Fratello_Coffee_Nescafe_shoot-112_c211acbc-b40a-4c72-b4e5-a65234a12178_550x.jpg?v=1760567821" },
+
+  { id:"N1630", cat:"Nespresso", comingSoon:false,
+    eyebrow:"Original Nespresso Compatible · Decaf", name:"DECAF Godfather",
+    origin:"Aluminum Capsules", vibe:"Sweet + Mild",
+    desc:"Smooth chocolate notes, rich body, mellow finish. No caffeine. 100% recyclable aluminum capsules.",
+    roast:2, sizes:["Sleeve (10 capsules)","Carton (10 sleeves)"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Fratello_Coffee_Nescafe_shoot-117_84c87b37-e86d-4025-9c46-206ee2e012ee_550x.jpg?v=1760565224" },
+
+  { id:"N2260", cat:"Nespresso", comingSoon:false,
+    eyebrow:"Original Nespresso Compatible", name:"Guatemala Montecristo",
+    origin:"Aluminum Capsules", vibe:"Balanced + Smooth",
+    desc:"Notes of molasses and cocoa. Clean finish. Compatible with Nespresso Original Line machines.",
+    roast:2, sizes:["Sleeve (10 capsules)","Carton (10 sleeves)"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Fratello_Coffee_Nescafe_shoot-108-Edit_fe474c2a-5e09-41bb-a4ad-c2d2e5d508ae_550x.jpg?v=1760562837" },
+
+
+  // ══ TEA — 16 products ═══════════════════════════════════
+  { id:"TEA1010", cat:"Tea", comingSoon:false,
+    eyebrow:"Herbal · Yerba Maté · Berry Blend", name:"Berry Yerba Maté",
+    origin:"8 oz Loose Leaf", vibe:"Fruity + Energizing",
+    desc:"Bold yerba maté blended with vibrant berry notes. A naturally energizing and antioxidant-rich infusion.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/f3a1ac8292df8740d3e37e0e48457556.webp?v=1775858683" },
+
+  { id:"TEA1020", cat:"Tea", comingSoon:false,
+    eyebrow:"Organic Chamomile · Lavender", name:"Chamomile Lavender",
+    origin:"4 oz Loose Leaf", vibe:"Floral + Calming",
+    desc:"Floral aroma with silky creamy texture and calming lavender notes. Excellent mouthfeel.",
+    roast:0, sizes:["4 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/246fc2a971bae2842215589f59794936.webp?v=1775858683" },
+
+  { id:"TEA1030", cat:"Tea", comingSoon:false,
+    eyebrow:"Top Tier Organic Black Tea · India", name:"Cream of Assam",
+    origin:"8 oz Loose Leaf", vibe:"Honey + Spice",
+    desc:"Smooth orange blossom honey with a hint of spice.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Cream_of_Assam_Tea_Bag_550x.png?v=1727212232" },
+
+  { id:"TEA1040", cat:"Tea", comingSoon:false,
+    eyebrow:"Organic Black Tea · Satrupa Estate, India", name:"Earl Grey Cream",
+    origin:"8 oz Loose Leaf", vibe:"Citrus + Floral",
+    desc:"Full bodied, hints of lemon and orange with floral lavender.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Earl_Grey_Cream_Tea_Bag_550x.png?v=1738963706" },
+
+  { id:"TEA1120", cat:"Tea", comingSoon:false,
+    eyebrow:"Green Tea · Mixed Berries · Africa", name:"Emerald Triple Berry",
+    origin:"8 oz Loose Leaf", vibe:"Vibrant + Fruity",
+    desc:"Vibrant and fruity with antioxidant-rich green tea and mixed berries. From a third-generation African tea estate.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Idle_Tea_Emerald_Triple_Berry_Tea_Bag.png?v=1727212644" },
+
+  { id:"TEA1050", cat:"Tea", comingSoon:false,
+    eyebrow:"Black Tea · Ginger · Sweet Peach", name:"Ginger Peach",
+    origin:"8 oz Loose Leaf", vibe:"Warm + Fruity",
+    desc:"Robust black tea with ginger, sweet peach, and antioxidants. Organic Nepali tea with French botanicals.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Idle_Tea_Ginger_Peach_Tea_Bag.png?v=1727212379" },
+
+  { id:"TEA1140", cat:"Tea", comingSoon:false,
+    eyebrow:"Alternative Latte · Turmeric · Cinnamon · Ginger", name:"Golden Turmeric Latte",
+    origin:"8 oz Bag", vibe:"Savoury + Warm",
+    desc:"Savoury and sweet with notes of cinnamon and a hint of ginger. A golden warming latte blend.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Latte-Golden-Turmeric_67b0d73f-7620-4d7c-90d6-3bde588e070e.webp?v=1775858683" },
+
+  { id:"TEA1150", cat:"Tea", comingSoon:false,
+    eyebrow:"Roasted Green Tea · Matcha Blend", name:"Houjicha Matcha",
+    origin:"8 oz Bag", vibe:"Toasty + Nutty",
+    desc:"Roasted green tea blended with matcha. Warm and toasty with hints of caramel and earthiness. Low caffeine, smooth and comforting.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Unknown.webp?v=1775858683" },
+
+  { id:"DRI1010", cat:"Tea", comingSoon:false,
+    eyebrow:"Signature Concentrate · 100% Organic", name:"Idle Spiced Chai",
+    origin:"1 L Bottle", vibe:"Cardamom + Spice",
+    desc:"Our 100% organic chai honors the traditions from the Karakorum region, delivering an authentic, cardamom-forward taste. Vegan, gluten-free, and preservative-free.",
+    roast:0, sizes:["1 L","Case of 12"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/IdleChaiConcentrate_550x.png?v=1698713424" },
+
+  { id:"TEA1060", cat:"Tea", comingSoon:false,
+    eyebrow:"Organic Black Tea & Spices · India", name:"Indian Chai",
+    origin:"8 oz Loose Leaf", vibe:"Warming + Spiced",
+    desc:"Warming flavors with an orange zest finish.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Indian_Chai_Tea_Bag_550x.png?v=1727212428" },
+
+  { id:"TEA1070", cat:"Tea", comingSoon:false,
+    eyebrow:"Medium Bodied Jasmine Green Tea", name:"Jasmine",
+    origin:"8 oz Loose Leaf", vibe:"Floral + Silky",
+    desc:"Very pronounced floral notes, smooth and silky.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Jasmine_Tea_Bag_550x.png?v=1727212470" },
+
+  { id:"TEA1080", cat:"Tea", comingSoon:false,
+    eyebrow:"Rooibos · Lemon Peel · Lemongrass", name:"Lemon Sunset",
+    origin:"8 oz Loose Leaf", vibe:"Bright + Smooth",
+    desc:"Refreshing and full-bodied, very bright and smooth.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Leon_Sunset_Tea_Bag_550x.png?v=1727287644" },
+
+  { id:"TEA1090", cat:"Tea", comingSoon:false,
+    eyebrow:"Oolong · Semi-Oxidized Chinese Tea", name:"Orange Cream Oolong",
+    origin:"8 oz Loose Leaf", vibe:"Citrus + Creamy",
+    desc:"Clean orange citrus notes with a creamy finish.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Orange_Cream_Oolong_Tea_Bag_550x.png?v=1727212523" },
+
+  { id:"TEA1130", cat:"Tea", comingSoon:false,
+    eyebrow:"Organic Matcha · Green Tea Powder", name:"Organic Matcha",
+    origin:"8 oz Bag", vibe:"Fresh + Grassy",
+    desc:"Vibrant organic matcha green tea powder. Subtly grassy and sweet, rich in antioxidants.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Latte-Matcha_34f9f0b1-eb24-474e-958d-7194cce7dfda.webp?v=1775858683" },
+
+  { id:"TEA1100", cat:"Tea", comingSoon:false,
+    eyebrow:"Organic Mint · Oregon, USA", name:"Peppermint",
+    origin:"4 oz Loose Leaf", vibe:"Clean + Refreshing",
+    desc:"Clean and crisp with a long refreshing finish.",
+    roast:0, sizes:["4 oz bag"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Peppermint_Tea_Bag_550x.png?v=1727212777" },
+
+  { id:"TEA1110", cat:"Tea", comingSoon:false,
+    eyebrow:"Rooibos · Raspberry · Hibiscus", name:"Raspberry Rooibos",
+    origin:"8 oz Loose Leaf", vibe:"Fruity + Caffeine-Free",
+    desc:"Caffeine-free rooibos with fruity raspberry and hibiscus notes. From South Africa near the Cederberg mountains.",
+    roast:0, sizes:["8 oz bag"],
+    img:"https://lh3.googleusercontent.com/d/1ow_O6f39SZ65luELGFHlKyTub7wRH4gU" },
+
+
+  // ══ SYRUPS & SAUCES — 23 products ═══════════════════════════════════
+  { id:"SYR1100", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Almond",
+    origin:"1 L", vibe:"Sweet · Nutty",
+    desc:"Rich almond flavour, sweet and smooth. Perfect for specialty lattes.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/547b73a498087350c06ffaa585178512_533x.jpg?v=1758902552" },
+
+  { id:"SYR1110", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Blackberry",
+    origin:"1 L", vibe:"Fruity · Bold",
+    desc:"Deep blackberry flavour, rich and vibrant. Ideal for refreshers and signature drinks.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/ba5357821634fd48bca6271038e49385_533x.jpg?v=1758902570" },
+
+  { id:"SYR1180", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup · Sweetener", name:"1883 - Cane Sugar Sweetener",
+    origin:"1 L", vibe:"Natural · Pure",
+    desc:"Pure cane sugar sweetener syrup. Simple, natural sweetness for any beverage.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/9bbb972e63e0e0473859327c4589799a_550x.jpg?v=1758903268" },
+
+  { id:"SYR1010", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Caramel",
+    origin:"1 L", vibe:"Sweet · Classic",
+    desc:"Rich caramel notes, perfect for lattes and cappuccinos.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/4930ff5c08b94c6c36613646896a9477_550x.jpg?v=1758902598" },
+
+  { id:"SYR1120", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Cherry",
+    origin:"1 L", vibe:"Fruity · Sweet",
+    desc:"Classic cherry flavour, sweet and balanced. Great for lattes, sodas, and specialty drinks.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/163ce5e217802d3622c749b298dc07e6_533x.jpg?v=1758902613" },
+
+  { id:"SYR1130", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Cinnamon",
+    origin:"1 L", vibe:"Warm · Spiced",
+    desc:"Warm cinnamon with a sweet spiced finish. A favourite for autumn drinks and chai lattes.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/7b91b10b79f9f50864a0b598e46524f9_533x.jpg?v=1758902632" },
+
+  { id:"SYR1080", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Gingerbread",
+    origin:"1 L", vibe:"Spiced · Festive",
+    desc:"Warm gingerbread spices, a seasonal favourite.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/bbf0998bd5889c9de004fede8eef3204_550x.jpg?v=1758902641" },
+
+  { id:"SYR1020", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Hazelnut",
+    origin:"1 L", vibe:"Nutty · Warm",
+    desc:"Smooth hazelnut flavour with a rich, toasted finish.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/16ae34ad765769d2ed5df7c7f0a22544_550x.jpg?v=1758902651" },
+
+  { id:"SYR1070", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Honey Sweetener",
+    origin:"1 L", vibe:"Natural · Mild",
+    desc:"Natural honey sweetener, clean and balanced.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/7ce578c2dc7a3db0ba0defa7d529d626_550x.jpg?v=1758902660" },
+
+  { id:"SYR1040", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Lavender",
+    origin:"1 L", vibe:"Floral · Light",
+    desc:"Delicate lavender with a soft floral finish.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/f61184bccf393a3ed642f45befcf0a70_550x.jpg?v=1758902669" },
+
+  { id:"SYR1140", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Lemon",
+    origin:"1 L", vibe:"Bright · Citrus",
+    desc:"Fresh lemon flavour, bright and zesty. Perfect for refreshers, teas, and specialty drinks.",
+    roast:0, sizes:["1 L"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/SYR2090_1883_-_Lemon_Syrup_-_1_L.jpg?v=1775859677" },
+
+  { id:"SYR1150", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Mango",
+    origin:"1 L", vibe:"Tropical · Sweet",
+    desc:"Sweet tropical mango flavour. Ideal for refreshers, smoothies, and iced drinks.",
+    roast:0, sizes:["1 L"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/SYR2100_1883_-_Mango_Syrup_-_1_L.jpg?v=1775859677" },
+
+  { id:"SYR1160", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Passion Fruit",
+    origin:"1 L", vibe:"Tropical · Tangy",
+    desc:"Vibrant passion fruit with a tangy tropical finish. Great for refreshers and specialty cocktails.",
+    roast:0, sizes:["1 L"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/SYR2110_1883_-_Passion_Fruit_Syrup_-_1_L.jpg?v=1775859677" },
+
+  { id:"SYR1060", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Raspberry",
+    origin:"1 L", vibe:"Fruity · Bright",
+    desc:"Fresh raspberry, bright and vibrant.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/59e7bb0aea9dc05631409c2d5b76ab10_550x.jpg?v=1758902876" },
+
+  { id:"SYR1050", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Salted Caramel",
+    origin:"1 L", vibe:"Sweet · Salty",
+    desc:"Sweet caramel with a balanced salty finish.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/772565bb2fb9ca659bea8835c8f7549f_550x.jpg?v=1758902919" },
+
+  { id:"SYR1170", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup · Sugar Free", name:"1883 - Sugar Free Sweetener",
+    origin:"1 L", vibe:"Clean · Light",
+    desc:"Sugar free sweetener syrup. All the sweetness, none of the sugar. Clean and balanced.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/069b55eda751f6660b258e3e00080e23_533x.jpg?v=1758903259" },
+
+  { id:"SYR1090", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup · Sugar Free", name:"1883 - Sugar Free Vanilla",
+    origin:"1 L", vibe:"Light · Clean",
+    desc:"All the flavour of vanilla, without the sugar.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/069b55eda751f6660b258e3e00080e23_550x.jpg?v=1758903259" },
+
+  { id:"SYR1030", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"1883 Syrup", name:"1883 - Vanilla",
+    origin:"1 L", vibe:"Sweet · Creamy",
+    desc:"Classic vanilla with a smooth, creamy finish.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/9bbb972e63e0e0473859327c4589799a_550x.jpg?v=1758903268" },
+
+  { id:"HOL3010", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"Hollander Sauce · 15 oz", name:"Hollander - Classic Caramel",
+    origin:"15 oz / Case of 12", vibe:"Rich · Warm",
+    desc:"Classic artisan caramel sauce for drizzling and blending into espresso drinks.",
+    roast:0, sizes:["15 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/hollander_classic-caramel-cafe-sauce_414ml_jpg_550x.webp?v=1762885692" },
+
+  { id:"HOL3020", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"Hollander Sauce · 15 oz", name:"Hollander - Dutched Chocolate",
+    origin:"15 oz / Case of 12", vibe:"Dark · Intense",
+    desc:"Premium dutched chocolate sauce for mochas, espresso drinks and desserts.",
+    roast:0, sizes:["15 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/hollander_dutched-chocolate-cafe-sauce_414ml_jpg_550x.webp?v=1762885637" },
+
+  { id:"HOL3030", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"Hollander Sauce · Seasonal", name:"Hollander - Pumpkin Pie Sauce",
+    origin:"1.89 L / Case of 6", vibe:"Warm · Seasonal",
+    desc:"Seasonal pumpkin pie sauce for signature autumn beverages and specialty espresso drinks.",
+    roast:0, sizes:["1.89 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/Hollander_-_Pumpkin_Pie_Sauce_-_1.89_L.png?v=1775845611" },
+
+  { id:"HOL3040", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"Hollander Sauce · 15 oz", name:"Hollander - White Chocolate",
+    origin:"15 oz / Case of 12", vibe:"Sweet · Creamy",
+    desc:"Smooth white chocolate sauce, perfect for mochas and specialty drinks.",
+    roast:0, sizes:["15 oz"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/hollander_white-chocolate-cafe-sauce_414ml_jpg_550x.webp?v=1762885678" },
+
+  { id:"DRI2010", cat:"Syrups & Sauces", comingSoon:false,
+    eyebrow:"Sauce · 1.89 L", name:"Phillips - Dark Chocolate Sauce",
+    origin:"1.89 L / Single Bottle", vibe:"Rich · Dark",
+    desc:"Phillips Coffee House Essentials dark chocolate sauce. Rich and smooth, perfect for mochas and espresso drinks.",
+    roast:0, sizes:["1.89 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/hollander_dutched-chocolate-cafe-sauce_414ml_jpg.webp?v=1762885637" },
+
+
+  // ══ SPECIALTY DRINK MIXES — 6 products ═══════════════════════════════════
+  { id:"SMF1060", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Recharge Refresher",
+    origin:"48 oz", vibe:"Rich + Floral",
+    desc:"Dragon fruit and elderberry refresher. Rich and floral with coconut water for hydration and green coffee bean extract for natural energy. No added sugar.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/82b1d93ba7a8963cf931f677f86a1ff0_550x_7bc8005f-5035-4258-a530-9c0c10c047c5.webp?v=1775859522" },
+
+  { id:"SMF1050", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Renew Refresher",
+    origin:"48 oz", vibe:"Light + Citrus",
+    desc:"Light and citrusy fruit refresher. 100% real fruit, no added sugar or preservatives.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/e6db41a012a3ce460236c1cfef1f0596_550x_437427d2-a25d-4670-abf0-1cfcd62994fd.webp?v=1775859522" },
+
+  { id:"SMF1040", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Replenish Refresher",
+    origin:"48 oz", vibe:"Fresh + Hydrating",
+    desc:"Hydrating fruit refresher with a clean, natural finish. No added sugar.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/bba880377baf25bc5ebd419f73381956_550x_d606f287-f16f-45c8-a38a-846f2f8807fe.webp?v=1775859522" },
+
+  { id:"SMF1030", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Restart Refresher",
+    origin:"48 oz", vibe:"Bold + Fruity",
+    desc:"100% real fruit blend with bold berry notes. No added sugar, all natural.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/fd05771442ee2bc95acecddb40cee8a4_1100x_png.webp?v=1775859522" },
+
+  { id:"SMF1020", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Restore Refresher",
+    origin:"48 oz", vibe:"Tropical + Smooth",
+    desc:"100% real fruit refresher. Naturally sweet, smooth tropical flavour with no added sugar.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/4e835fda55224ea96b6da26a6d0bb68b_550x_75305d8b-75e9-40d1-83a6-e4078cd2f1e8.webp?v=1775859522" },
+
+  { id:"SMF1010", cat:"Specialty Drink Mixes", comingSoon:false,
+    eyebrow:"Smartfruit Refresher", name:"Smartfruit - Revive Refresher",
+    origin:"48 oz", vibe:"Bright + Reviving",
+    desc:"100% real fruit refresher with no added sugar. Bright, vibrant, and ready to mix.",
+    roast:0, sizes:["48 oz"],
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/82b1d93ba7a8963cf931f677f86a1ff0_550x_7bc8005f-5035-4258-a530-9c0c10c047c5.webp?v=1775859522" },
+
+
+  // ══ MILK ALTERNATIVES — 2 products ═══════════════════════════════════
+  { id:"MLK1020", cat:"Milk Alternatives", comingSoon:false,
+    eyebrow:"Barista Almond Beverage · Pacific Foods", name:"Pacific Foods Barista Almond",
+    origin:"1 L", vibe:"Light + Nutty",
+    desc:"Non-GMO barista almond beverage. Froths and steams flawlessly for café-quality drinks.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/0f0cf200bf558db8eece3eef17023a04_533x.jpg?v=1758908562" },
+
+  { id:"MLK1010", cat:"Milk Alternatives", comingSoon:false,
+    eyebrow:"Barista Oat Milk · Canadian", name:"Two Bears Barista Oat Milk",
+    origin:"1 L", vibe:"Creamy + Neutral",
+    desc:"Made with naturally sweet Canadian oats. Steams beautifully for lattes and cappuccinos.",
+    roast:0, sizes:["1 L"],
+    img:"https://www.fratellocoffee.com/cdn/shop/files/OATbaristafriendly_1024x1024_02941419-a1d1-44ef-8685-06f983c47a28_533x.png?v=1705020202" },
+
+];
+
+// ── PROPOSAL CSS (exact Portfolio style) ──────────────────────────────────────
+const PROPOSAL_CSS=`
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+:root{--teal:#2eb4af;--dark:#000000;--white:#ffffff;--cream:#F6F1E9;--cream-alt:#EFEAD9;--cream-deep:#DDD6C4;--text:#16140C;--text-mid:#4A4836;--text-lt:#877F6A;--ff-main:'Montserrat',sans-serif;--ff-serif:'Cormorant Garamond',Georgia,serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased}
+.eyebrow{font-family:var(--ff-main);font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--teal);display:block}
+.page-foot{display:flex;justify-content:space-between;padding:20px 80px;border-top:1px solid var(--cream-deep);margin-top:28px}
+.page-foot span{font-size:9px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-lt)}
+.page-foot span:last-child{color:var(--teal)}
+.cover{background:var(--dark);height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:48px 72px;page-break-after:always}
+.cover-wm{position:absolute;inset:0;background-image:url('https://lh3.googleusercontent.com/d/1iHYl_vSw_POQfMsDwHNm7y2k_esLpca9');background-size:cover;background-position:center;opacity:0.30;pointer-events:none;z-index:0}
+.cover-top{display:flex;justify-content:space-between;position:relative;z-index:2}
+.cover-top-l{font-size:9px;font-weight:600;letter-spacing:5px;color:var(--teal);text-transform:uppercase}
+.cover-top-r{font-size:9px;font-weight:400;letter-spacing:4px;color:rgba(255,255,255,0.52);text-transform:uppercase}
+.cover-main{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center}
+.cover-wordmark{font-size:clamp(68px,12vw,140px);font-weight:900;letter-spacing:0.26em;color:var(--white);text-transform:uppercase;line-height:1}
+.cover-rule{width:80px;height:1px;background:var(--teal);opacity:0.5;border:none;margin:32px 0}
+.cover-sub{font-size:12px;font-weight:200;font-style:italic;letter-spacing:0.5em;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:36px;font-family:var(--ff-serif)}
+.cover-for{font-size:15px;font-weight:300;color:rgba(255,255,255,0.7);letter-spacing:0.1em}
+.cover-for strong{font-weight:700;color:var(--white)}
+.cover-stats{display:flex;gap:80px;margin-top:44px}
+.cstat{text-align:center}
+.cstat-n{font-size:48px;font-weight:900;color:var(--white);line-height:1}
+.cstat-l{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:6px}
+.cover-bottom{position:relative;z-index:2;text-align:center}
+.cover-tagline{font-family:var(--ff-serif);font-size:12px;font-weight:300;font-style:italic;letter-spacing:0.25em;color:rgba(255,255,255,0.45);display:block;margin-bottom:10px}
+.cover-year{font-size:9px;font-weight:700;letter-spacing:4px;color:rgba(255,255,255,0.3)}
+.cover-rep{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-top:16px;display:block}
+.chap{position:relative;overflow:hidden;min-height:380px;display:flex;align-items:stretch;background:var(--dark);background-size:cover;background-position:center;page-break-before:always;page-break-after:avoid}
+.chap-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(105deg,rgba(14,13,8,0.97) 0%,rgba(14,13,8,0.88) 45%,rgba(14,13,8,0.55) 100%)}
+.chap-accent{position:absolute;bottom:-24px;right:40px;font-size:160px;font-weight:900;letter-spacing:-0.03em;text-transform:uppercase;color:rgba(255,255,255,0.05);line-height:1;pointer-events:none;user-select:none;z-index:2;white-space:nowrap}
+.chap-inner{position:relative;z-index:3;display:flex;justify-content:space-between;align-items:center;width:100%;padding:68px 72px;gap:32px}
+.chap-left{flex:1}
+.chap-eye{margin-bottom:18px}
+.chap-title{font-size:clamp(50px,7.5vw,90px);font-weight:900;line-height:0.93;color:var(--white);letter-spacing:-0.025em}
+.chap-title em{font-family:var(--ff-serif);font-style:italic;font-weight:400;color:rgba(255,255,255,0.75);display:block;font-size:0.82em;letter-spacing:0}
+.chap-body{font-family:var(--ff-main);font-size:16px;font-weight:400;line-height:1.75;color:rgba(255,255,255,0.68);margin-top:22px;max-width:480px}
+.prod-page{background:var(--cream);padding:36px 56px 20px;overflow:visible}
+.prod-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--cream-deep);border-top:2px solid var(--teal);padding-top:12px;margin-bottom:28px}
+.prod-hdr-title{font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#16140C}
+.prod-hdr-num{font-size:7px;font-weight:700;letter-spacing:4px;color:var(--teal);text-transform:uppercase}
+.pc-hero{display:grid;grid-template-columns:1fr 1.6fr;gap:0;background:var(--cream-alt);margin-bottom:48px;overflow:hidden}
+.pc-hero-img-wrap{background:#f5f0e8;display:flex;align-items:flex-end;justify-content:center;padding:40px 24px 0;overflow:hidden}
+.pc-hero-img-wrap img{width:260px;object-fit:contain;display:block;padding:8px}
+.pc-hero-body{padding:48px 56px 48px 48px;display:flex;flex-direction:column;justify-content:center}
+.pc-hero-body .eyebrow{margin-bottom:14px}
+.pc-hero-name{font-size:52px;font-weight:900;line-height:0.93;letter-spacing:-0.03em;color:var(--text);margin-bottom:8px}
+.pc-hero-sub{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:20px}
+.pc-hero-vibe{font-family:var(--ff-serif);font-size:18px;font-weight:400;font-style:italic;color:var(--text-mid);margin-bottom:14px}
+.pc-hero-desc{font-family:var(--ff-main);font-size:15px;font-weight:400;line-height:1.75;color:var(--text-mid)}
+.pc-hero-roast{display:flex;align-items:center;gap:12px;margin-top:24px}
+.roast-lbl{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-mid)}
+.roast-track{display:flex;gap:5px;align-items:center}
+.rt{width:7px;height:7px;border-radius:50%;background:transparent;border:1.5px solid var(--text-lt);flex-shrink:0}
+.rt.on{background:var(--text);border-color:#fff}
+.pg-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px 32px;max-width:900px;margin:0 auto}
+.pg-2{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 48px;max-width:720px;margin:0 auto}
+.pg-4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 18px}
+.pg-1{display:flex;justify-content:center;padding:0}
+.pg-1 .pc{max-width:320px}
+.pc{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 10px 18px;break-inside:avoid;page-break-inside:avoid}
+.pc-img{width:130px;height:150px;object-fit:contain;background:#fff;border-radius:10px;padding:8px;box-shadow:0 2px 10px rgba(0,0,0,0.09);margin-bottom:10px}
+.pc-img.nespresso-img{width:140px;height:160px;object-fit:contain;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 12px rgba(0,0,0,0.12)}
+.pc-coming-soon{width:170px;height:195px;background:#111;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.pc-cs-badge{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;border:1px solid rgba(46,180,175,0.5);border-radius:4px;padding:5px 12px}
+.pc-eye{margin-bottom:7px}
+/* ── LIGHTBOX ── */
+.lb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;
+  align-items:center;justify-content:center;cursor:pointer;}
+.lb-overlay.open{display:flex;}
+.lb-box{background:#fff;border-radius:16px;padding:24px;max-width:560px;width:90%;
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;cursor:default;position:relative;}
+.lb-close{position:absolute;top:12px;right:16px;font-size:18px;cursor:pointer;
+  color:rgba(0,0,0,0.4);background:none;border:none;line-height:1;}
+.lb-close:hover{color:#000;}
+.lb-img-wrap{background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:12px;}
+.lb-img-wrap img{width:100%;height:auto;object-fit:contain;max-height:280px;}
+.lb-info{display:flex;flex-direction:column;justify-content:center;gap:6px;}
+.lb-eyebrow{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;}
+.lb-name{font-size:22px;font-weight:900;line-height:1.1;color:#16140C;letter-spacing:-0.02em;}
+.lb-origin{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#877F6A;}
+.lb-vibe{font-size:14px;font-style:italic;color:#4A4836;font-family:'Cormorant Garamond',Georgia,serif;}
+.lb-desc{font-size:13px;line-height:1.7;color:#4A4836;font-weight:300;}
+.lb-sizes{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.lb-size{font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:4px;
+  border:1px solid #DDD6C4;color:#877F6A;}
+.lb-roast{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.lb-roast-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#4A4836;}
+.lb-dot{width:8px;height:8px;border-radius:50%;}
+.pc-name{font-size:20px;font-weight:900;letter-spacing:-0.015em;line-height:1.1;color:var(--text);margin-bottom:5px}
+.pc-name.sm{font-size:16px}
+.pc-origin{font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-lt);margin-bottom:10px}
+.pc-vibe{font-family:var(--ff-serif);font-size:15px;font-weight:400;font-style:italic;color:var(--text-mid);margin-bottom:10px}
+.pc-desc{font-family:var(--ff-main);font-size:14px;font-weight:400;line-height:1.6;color:var(--text-lt);max-width:220px}
+.pc-roast{display:flex;align-items:center;gap:8px;margin-top:12px}
+.pc-sizes{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:10px}
+.pc-size-pill{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;border:1px solid var(--cream-deep);color:var(--text-lt)}
+.section-rule{border:none;height:1px;background:var(--cream-deep);margin:48px 0}
+.tea-page{background:var(--cream);padding:40px 56px 24px;overflow:visible}
+.t-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:24px 16px}
+.tc{display:flex;flex-direction:column;align-items:center;text-align:center}
+.tc-img{width:90px;height:110px;object-fit:contain;background:#fff;border-radius:10px;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px}
+.tc-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px;line-height:1.2}
+.tc-origin{font-size:9.5px;font-weight:600;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;line-height:1.55;margin-bottom:5px;max-width:200px}
+.tc-desc{font-size:13.5px;font-weight:300;color:var(--text-lt);line-height:1.55;max-width:200px}
+.tc-sizes{display:flex;gap:4px;justify-content:center;margin-top:8px}
+.tc-size-pill{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;border:1px solid var(--cream-deep);color:var(--text-lt)}
+.back-cover{background:var(--dark);min-height:50vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:64px 72px;page-break-before:always}
+.bc-wm{position:absolute;inset:0;background-image:url('https://fratello.odoo.com/web/image/2178-8acfb16c/fratello-bg_1920x.webp');background-size:cover;background-position:center;opacity:0.07;pointer-events:none;z-index:0}
+.bc-main{position:relative;z-index:2;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.bc-wordmark{font-size:clamp(60px,11vw,130px);font-weight:900;letter-spacing:0.26em;color:var(--white);text-transform:uppercase;line-height:1}
+.bc-rule{width:90px;height:1px;background:var(--teal);opacity:0.55;border:none;margin:28px auto}
+.bc-tagline{font-family:var(--ff-serif);font-size:13px;font-weight:300;font-style:italic;letter-spacing:0.35em;color:rgba(255,255,255,0.62);text-transform:uppercase}
+.bc-bottom{position:relative;z-index:2;text-align:center}
+.bc-address{font-size:9px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.52);line-height:2.2}
+.bc-web{font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--teal);margin-top:12px;display:block}
+@media print{
+*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+html,body{height:auto!important;overflow:visible!important}
+body::after{display:none!important}
+#toolbar{display:none!important}
+@page{size:A4 landscape;margin:0}
+.cover{page-break-after:always;min-height:100vh;height:100vh}
+.about-wrap,.about-page{page-break-after:always}
+.chap{page-break-before:always;page-break-after:avoid;min-height:44vh;max-height:55vh}
+.prod-page,.tea-page{page-break-before:avoid;page-break-after:always;min-height:50vh}
+.prod-overflow{page-break-before:always;page-break-after:always;min-height:50vh}
+.tbl-dark,.tbl-light{page-break-before:always;page-break-after:always}
+.order-page{page-break-before:always;page-break-after:always}
+.ty-page{page-break-before:always;page-break-after:always;min-height:100vh}
+.back-cover{page-break-before:always;height:100vh}
+.pc,.tc{break-inside:avoid!important;page-break-inside:avoid!important}
+.pg-3,.pg-4,.pg-2,.t-grid{break-inside:auto!important}
+.pg-1{min-height:320px;display:flex;align-items:center;justify-content:center}
+.pg-1 .pc{max-width:360px}
+.pg-2{min-height:320px}
+.cover{background-color:#000!important}
+.chap{background-color:#000!important}
+.chap-overlay{background:linear-gradient(105deg,rgba(14,13,8,0.97) 0%,rgba(14,13,8,0.88) 45%,rgba(14,13,8,0.55) 100%)!important}
+.prod-page,.tea-page,.prod-overflow{background-color:#F6F1E9!important}
+.back-cover{background-color:#000!important}
+.eyebrow{color:#2eb4af!important}
+.chap-title{color:#fff!important}
+.chap-title em{color:rgba(255,255,255,0.75)!important}
+.chap-body{color:rgba(255,255,255,0.68)!important}
+.diff-bar{page-break-before:avoid;page-break-after:always}
+}
+
+/* ── ABOUT PAGE ── */
+.about-wrap{display:contents;}
+.about-page{background:#F6F1E9;display:grid;grid-template-columns:1fr 1fr;height:100vh;page-break-after:always;}
+.about-left{padding:44px 40px 36px 52px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid #DDD6C4;}
+.about-eyebrow{margin-bottom:14px;}
+.about-headline{font-size:clamp(28px,3.8vw,46px);font-weight:900;line-height:0.92;letter-spacing:-0.025em;color:#16140C;margin-bottom:20px;}
+.about-headline em{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:300;color:#4A4836;display:block;font-size:0.9em;margin-top:2px;}
+.about-rule{margin:20px 0;height:1px;border:none;background:#2eb4af;opacity:0.5;}
+.about-pull{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;font-weight:400;font-style:italic;line-height:1.6;color:#16140C;margin-bottom:22px;padding-left:20px;border-left:3px solid #B8922E;}
+.about-body p{font-size:13px;font-weight:400;line-height:1.8;color:#4A4836;margin-bottom:14px;}
+.about-right{position:relative;overflow:hidden;background:#111;}
+.about-right img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;}
+.about-photo-stat-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 36px;background:linear-gradient(transparent,rgba(0,0,0,0.78));}
+/* ── DIFF BAR ── */
+.diff-bar{background:#111111;display:grid;grid-template-columns:repeat(4,1fr);page-break-before:avoid;flex-shrink:0;page-break-after:always;}
+.diff-item{padding:30px 20px;border-right:1px solid rgba(255,255,255,0.06);text-align:center;display:flex;flex-direction:column;align-items:center;}
+.diff-item:last-child{border-right:none;}
+.diff-text{font-size:13px;font-weight:500;line-height:1.5;color:rgba(255,255,255,0.78);}
+.diff-pip{width:3px;height:3px;border-radius:50%;background:#2eb4af;margin:12px auto 0;}
+/* ── OFFERING TABLE DARK ── */
+.tbl-dark{background:#000;page-break-before:always;page-break-after:always;}
+.tbl-hdr{padding:36px 64px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:18px;}
+.tbl-logo{font-size:20px;font-weight:900;letter-spacing:7px;color:#fff;text-transform:uppercase;}
+.tbl-sep{width:1px;height:24px;background:rgba(255,255,255,0.12);}
+.tbl-heading{font-size:9px;font-weight:700;letter-spacing:4px;color:#2eb4af;text-transform:uppercase;}
+.tbl-body{padding:24px 64px 40px;}
+.otbl{width:100%;border-collapse:collapse;font-size:14px;}
+.otbl thead tr th{font-size:8px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.55);padding:10px 14px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08);}
+.otbl thead tr th:not(:first-child){text-align:center;}
+.otbl tbody tr td{padding:11px 14px;color:rgba(255,255,255,0.82);border-bottom:1px solid rgba(255,255,255,0.04);font-weight:300;}
+.otbl tbody tr td:not(:first-child){text-align:center;color:rgba(255,255,255,0.6);font-weight:600;}
+.otbl .cat-row td{padding:0;border:none;}
+.cat-lbl{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;padding:14px 14px 4px;display:block;border-top:1px solid rgba(255,255,255,0.05);}
+.tbl-foot{padding:14px 64px;border-top:1px solid rgba(255,255,255,0.05);text-align:right;font-size:8px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+/* ── OFFERING TABLE LIGHT ── */
+.tbl-light{background:#000;page-break-before:always;page-break-after:always;}
+.tbl-hdr-light{padding:28px 56px 20px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:18px;}
+.tbl-logo-dk{font-size:20px;font-weight:900;letter-spacing:7px;color:#fff;text-transform:uppercase;}
+.tbl-sep-dk{width:1px;height:24px;background:rgba(255,255,255,0.2);}
+.tbl-body-2col{padding:24px 64px 40px;display:grid;grid-template-columns:1fr 1fr;gap:44px;}
+.otbl-lt{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:22px;}
+.otbl-lt thead tr th{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.5);padding:9px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);}
+.otbl-lt thead tr th:not(:first-child){text-align:right;}
+.otbl-lt tbody tr td{padding:8px 10px;color:rgba(255,255,255,0.75);border-bottom:1px solid rgba(255,255,255,0.07);font-weight:300;}
+.otbl-lt tbody tr td:not(:first-child){text-align:right;font-weight:600;color:#fff;}
+.tbl-foot-lt{padding:14px 64px;border-top:1px solid rgba(255,255,255,0.08);text-align:right;font-size:9px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.promo-strip{background:#1A1A1A;padding:20px 22px;display:flex;gap:14px;align-items:flex-start;margin-top:14px;border-left:3px solid #2eb4af;}
+.promo-strip-icon{font-size:18px;}
+.promo-strip-txt{font-size:12px;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.7;}
+.promo-strip-txt strong{font-weight:700;color:#fff;display:block;margin-bottom:3px;}
+/* ── ORDER PAGE ── */
+.order-page{background:#F6F1E9;page-break-before:always;page-break-after:always;}
+.order-hdr{padding:36px 64px 24px;border-bottom:1px solid #DDD6C4;display:flex;align-items:center;gap:18px;}
+.order-grid{padding:24px 64px 44px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.o-blk{background:#EFEAD9;padding:26px;border-left:2px solid #2eb4af;}
+.o-ttl{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #DDD6C4;}
+.o-txt{font-size:14px;font-weight:300;line-height:1.75;color:#4A4836;margin-bottom:10px;}
+.o-txt strong{font-weight:700;color:#16140C;}
+.o-lead-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #DDD6C4;font-size:13px;}
+.o-lead-row span:first-child{font-weight:300;color:#4A4836;}
+.o-lead-row span:last-child{font-weight:700;color:#16140C;}
+.spec-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.spec-tbl th{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#877F6A;padding:7px 8px;border-bottom:1px solid #DDD6C4;text-align:center;}
+.spec-tbl th:first-child{text-align:left;}
+.spec-tbl td{padding:7px 8px;border-bottom:1px solid #DDD6C4;color:#4A4836;text-align:center;font-weight:300;}
+.spec-tbl td:first-child{text-align:left;font-weight:600;color:#16140C;}
+.hours-row{display:flex;justify-content:space-between;align-items:center;background:#1A1A1A;padding:12px 14px;margin-top:10px;}
+.hours-row span{font-size:12px;font-weight:300;color:rgba(255,255,255,0.55);}
+.hours-row strong{font-size:13px;font-weight:800;color:#2eb4af;}
+/* ── THANK YOU ── */
+.ty-page{background:#000;padding:68px 68px 36px;min-height:640px;position:relative;overflow:hidden;page-break-before:always;page-break-after:always;}
+.ty-wm{display:none;}
+.ty-inner{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;position:relative;z-index:2;}
+.ty-title{font-size:clamp(52px,7.5vw,86px);font-weight:900;line-height:0.92;color:#fff;margin-bottom:22px;letter-spacing:-0.025em;}
+.ty-title em{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:300;color:rgba(255,255,255,0.6);display:block;}
+.ty-rule{height:1px;border:none;background:#2eb4af;opacity:0.5;margin:0 0 22px;}
+.ty-txt{font-size:14px;font-weight:300;line-height:1.8;color:rgba(255,255,255,0.68);margin-bottom:12px;}
+.ty-foot{margin-top:32px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.05);text-align:right;font-size:8px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.3);position:relative;z-index:2;}
+.contact-card{border:1px solid rgba(255,255,255,0.08);padding:16px 14px;cursor:default;}
+.contact-phone{font-size:11px;color:rgba(255,255,255,0.65);margin-bottom:3px;display:block;text-decoration:none;}
+.contact-phone:hover{color:#fff;}
+.contact-email{font-size:11px;font-weight:600;color:#2eb4af;display:block;text-decoration:none;}
+.contact-email:hover{color:#4ecdc8;}
+.contact-name{font-size:13px;font-weight:800;color:#fff;margin-bottom:2px;line-height:1.2;}
+.contact-role{font-size:7px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:9px;}
+
+
+.cbox-learn{border:1px solid rgba(255,255,255,0.08);padding:18px 20px;margin-bottom:10px;}
+.cbox-learn-eye{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;margin-bottom:8px;}
+.cbox-learn-txt{font-size:11px;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.6;margin-bottom:6px;}
+.cbox-learn-link{font-size:12px;font-weight:600;color:#2eb4af;}
+.cbox-order{background:#2eb4af;padding:18px 20px;}
+.cbox-order-eye{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:7px;}
+.cbox-order-email{font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;}
+.cbox-order-detail{font-size:11px;font-weight:300;color:rgba(255,255,255,0.85);margin-bottom:3px;}
+
+.prod-overflow{background:var(--cream);padding:32px 56px 24px;overflow:visible;page-break-before:always}
+.prod-overflow .prod-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--cream-deep);border-top:2px solid var(--teal);padding-top:12px;margin-bottom:24px}
+
+/* ══ MOBILE RESPONSIVE FOR PROPOSAL ══ */
+@media screen and (max-width:768px){
+  /* Cover */
+  .cover{padding:28px 20px;height:auto;min-height:100vh}
+  .cover-wordmark{font-size:42px;letter-spacing:0.18em}
+  .cover-stats{gap:24px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+  .cstat-n{font-size:32px}
+  .cover-sub{font-size:10px;letter-spacing:0.3em;margin-bottom:20px}
+  .cover-for{font-size:13px}
+  .cover-top-l,.cover-top-r{font-size:7px}
+  .cover-tagline{font-size:10px;letter-spacing:0.15em}
+
+  /* About page */
+  .about-page{grid-template-columns:1fr!important;height:auto!important;min-height:auto!important}
+  .about-left{padding:28px 20px!important}
+  .about-headline{font-size:28px!important}
+  .about-pull{font-size:15px!important}
+  .about-right{min-height:200px}
+
+  /* Diff bar */
+  .diff-bar{grid-template-columns:repeat(2,1fr)!important}
+  .diff-item{padding:18px 12px}
+
+  /* Chapter banners */
+  .chap{min-height:250px}
+  .chap-inner{padding:28px 20px!important;flex-direction:column}
+  .chap-title{font-size:36px!important}
+  .chap-body{font-size:13px!important;max-width:100%!important}
+  .chap-accent{font-size:60px!important;right:10px!important;bottom:-10px!important}
+
+  /* Product pages */
+  .prod-page,.tea-page,.prod-overflow{padding:20px 16px 16px!important}
+  .prod-hdr{flex-direction:column;gap:4px;align-items:flex-start}
+  .prod-hdr-title{font-size:18px!important}
+
+  /* Product grids - 2 columns max on mobile */
+  .pg-3,.pg-4{grid-template-columns:repeat(2,1fr)!important;gap:16px 12px!important}
+  .pg-2{grid-template-columns:repeat(2,1fr)!important;gap:16px 12px!important;max-width:100%!important}
+  .pg-1{padding:0!important}
+  .pg-1 .pc{max-width:100%!important}
+
+  /* Product cards in proposal */
+  .pc{padding:10px 6px 12px!important}
+  .pc-img{width:100px!important;height:120px!important;border-radius:8px!important}
+  .pc-img.nespresso-img{width:110px!important;height:130px!important}
+  .pc-name{font-size:14px!important}
+  .pc-name.sm{font-size:12px!important}
+  .pc-origin{font-size:8px!important;letter-spacing:1.5px!important}
+  .pc-vibe{font-size:12px!important}
+  .pc-desc{font-size:11px!important;max-width:100%!important;line-height:1.5!important}
+  .pc-eye{font-size:7px!important;letter-spacing:2px!important}
+
+  /* Hero product */
+  .pc-hero{grid-template-columns:1fr!important}
+  .pc-hero-img-wrap{padding:20px 16px 0!important}
+  .pc-hero-img-wrap img{width:180px!important}
+  .pc-hero-body{padding:20px 16px 24px!important}
+  .pc-hero-name{font-size:32px!important}
+  .pc-hero-desc{font-size:13px!important}
+
+  /* Tea grid */
+  .t-grid{grid-template-columns:repeat(2,1fr)!important;gap:16px 10px!important}
+  .tc-img{width:70px!important;height:90px!important}
+  .tc-name{font-size:12px!important}
+  .tc-desc{font-size:11px!important;max-width:100%!important}
+  .tc-origin{font-size:8px!important;max-width:100%!important}
+
+  /* Offering tables */
+  .tbl-hdr,.tbl-hdr-light{padding:20px 16px 14px!important}
+  .tbl-body{padding:14px 16px 24px!important}
+  .tbl-body-2col{padding:14px 16px 24px!important;grid-template-columns:1fr!important;gap:20px!important}
+  .otbl{font-size:11px!important}
+  .otbl thead tr th{font-size:7px!important;padding:7px 8px!important}
+  .otbl tbody tr td{padding:8px 8px!important;font-size:12px!important}
+  .tbl-foot,.tbl-foot-lt{padding:10px 16px!important}
+  .otbl-lt{font-size:11px!important}
+  .tbl-logo,.tbl-logo-dk{font-size:16px!important;letter-spacing:4px!important}
+
+  /* Order page */
+  .order-hdr{padding:20px 16px 14px!important}
+  .order-grid{padding:14px 16px 24px!important;grid-template-columns:1fr!important;gap:12px!important}
+  .o-blk{padding:16px!important}
+  .o-txt{font-size:12px!important}
+  .o-lead-row{font-size:11px!important}
+  .spec-tbl{font-size:10px!important}
+  .spec-tbl th{font-size:6px!important}
+
+  /* Thank you page */
+  .ty-page{padding:28px 20px 20px!important}
+  .ty-inner{grid-template-columns:1fr!important;gap:28px!important}
+  .ty-title{font-size:42px!important}
+  .ty-txt{font-size:12px!important}
+  .contact-card{padding:10px!important}
+  .contact-name{font-size:11px!important}
+  .contact-email{font-size:9px!important;word-break:break-all}
+  .contact-phone{font-size:9px!important}
+  .contact-role{font-size:6px!important}
+  .cbox-learn,.cbox-order{padding:12px 14px!important}
+
+  /* Back cover */
+  .back-cover{padding:36px 20px!important;min-height:60vh}
+  .bc-wordmark{font-size:42px!important;letter-spacing:0.18em!important}
+  .bc-tagline{font-size:10px!important;letter-spacing:0.15em!important}
+  .bc-address{font-size:7px!important}
+
+  /* Lightbox */
+  .lb-box{grid-template-columns:1fr!important;width:95%!important;max-height:90vh;overflow-y:auto}
+  .lb-img-wrap img{max-height:180px!important}
+  .lb-name{font-size:18px!important}
+
+  /* Coming soon */
+  .pc-coming-soon{width:100%!important;height:120px!important}
+  /* Contact grid */
+  .contact-grid{grid-template-columns:1fr!important;gap:6px!important}
+}
+@media screen and (max-width:400px){
+  .pg-3,.pg-4,.pg-2{grid-template-columns:1fr!important}
+  .t-grid{grid-template-columns:1fr!important}
+  .cover-stats{flex-direction:column;gap:16px}
+  .diff-bar{grid-template-columns:1fr!important}
+  .contact-card{display:block}
+  div[style*="grid-template-columns: 1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+}
+
+.otbl-light{width:100%;border-collapse:collapse;}
+.otbl-light thead tr th{background:#111;color:rgba(255,255,255,0.6);border-bottom:1px solid rgba(255,255,255,0.1);font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:10px 14px;text-align:left;}
+.otbl-light tbody tr td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px;color:rgba(255,255,255,0.75);}
+.otbl-light tbody tr td:first-child{font-weight:600;color:#fff;}
+.otbl-light tbody tr td:not(:first-child){text-align:center;}
+.tbl-sec-label-light{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:14px 14px 6px;}
+.tbl-body-light{padding:0 56px 40px;}
+.tbl-fo-light{padding:16px 56px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:flex-end;}
+.tbl-fo-light .tbl-fo-url{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+`;
+
+// ── ROAST DOTS HTML ────────────────────────────────────────────────────────────
+function roastHTML(n) {
+  if(!n) return '';
+  const dots=[1,2,3,4,5].map(i=>`<div class="rt${i<=n?' on':''}"></div>`).join('');
+  return `<div class="pc-roast"><span class="roast-lbl">Roast</span><div class="roast-track">${dots}</div></div>`;
+}
+
+// ── SIZES HTML ────────────────────────────────────────────────────────────────
+function sizesHTML(sizes) {
+  if(!sizes||!sizes.length) return '';
+  return `<div class="pc-sizes">${sizes.map(s=>`<span class="pc-size-pill">${s}</span>`).join('')}</div>`;
+}
+
+// ── PC CARD ───────────────────────────────────────────────────────────────────
+function pcCardHTML(p,isNespresso) {
+  const displayName=p.name||'';
+  const nameParts=displayName.split('\n');
+  const nameDisplay=nameParts.length>1?`${nameParts[0]}<br>${nameParts[1]}`:nameParts[0];
+  const nameSize=displayName.length>14?' sm':'';
+  const imgClass=isNespresso?'pc-img nespresso-img':'pc-img';
+  const sizesArr=JSON.stringify(p.sizes||[]);
+  const imgHTML=p.comingSoon
+    ?`<div class="pc-coming-soon"><span class="pc-cs-badge">Coming Soon</span></div>`
+    :`<img class="${imgClass}" src="${p.img}" alt="${p.name}"
+        style="cursor:pointer;"
+        onclick="openLB('${p.img}','${(p.eyebrow||'').replace(/'/g,"\'")}','${(p.name||'').replace(/'/g,"\'")}','${(p.origin||'').replace(/'/g,"\'")}','${(p.vibe||'').replace(/'/g,"\'")}','${(p.desc||'').replace(/'/g,"\'")}',${p.roast||0},${sizesArr})"
+        onerror="this.style.display='none';var cs=document.createElement('div');cs.className='pc-coming-soon';cs.innerHTML='<span class=pc-cs-badge>Coming Soon</span>';this.parentElement.replaceWith(cs);">`;
+  return `<div class="pc">
+  ${imgHTML}
+  <span class="eyebrow pc-eye">${p.eyebrow}</span>
+  <div class="pc-name${nameSize}">${nameDisplay}</div>
+  <div class="pc-origin">${p.origin}</div>
+  <div class="pc-vibe">— ${p.vibe} —</div>
+  <div class="pc-desc">${p.desc}</div>
+  ${roastHTML(p.roast)}
+  ${sizesHTML(p.sizes)}
+</div>`;
+}
+
+// ── TC CARD (Tea style) ───────────────────────────────────────────────────────
+function tcCardHTML(p) {
+  return `<div class="tc">
+  <img class="tc-img" src="${p.img}" alt="${p.name}" onerror="this.style.visibility='hidden'">
+  <div class="tc-name">${p.name}</div>
+  <div class="tc-origin">${p.eyebrow}</div>
+  <div class="tc-desc">${p.vibe} — ${p.desc}</div>
+  <div class="tc-sizes">${p.sizes.map(s=>`<span class="tc-size-pill">${s}</span>`).join('')}</div>
+</div>`;
+}
+
+// ── GRID WRAPPER ──────────────────────────────────────────────────────────────
+function wrapGrid(items,isTea,isNespresso) {
+  if(isTea) return `<div class="t-grid">${items.map(tcCardHTML).join('')}</div>`;
+  const n=items.length;
+  // Balance: choose cols so products fill rows evenly on A4 landscape
+  // 1=centered, 2=2col wide, 3=3col, 4=4col, 5=3col(2+3), 6=3col(2rows), 7-8=4col(2rows)
+  let cls;
+  if(n===1) cls='pg-1';
+  else if(n===2) cls='pg-2';
+  else if(n===3) cls='pg-3';
+  else if(n===4) cls='pg-4';
+  else if(n===5||n===6) cls='pg-3';
+  else cls='pg-4';
+  return `<div class="${cls}">${items.map(p=>pcCardHTML(p,isNespresso)).join('')}</div>`;
+}
+
+// ── PC HERO (Godfather Classic special layout) ─────────────────────────────────
+function heroHTML(p) {
+  return `<div class="pc-hero">
+  <div class="pc-hero-img-wrap">
+    <img src="${p.img}" alt="${p.name}" style="cursor:pointer;"
+      onclick="openLB('${p.img}','${(p.eyebrow||'').replace(/'/g,"\'")}','${p.name}','${p.origin}','${p.vibe}','${p.desc}',${p.roast||0},${JSON.stringify(p.sizes||[])})"
+      onerror="this.style.display='none'">
+  </div>
+  <div class="pc-hero-body">
+    <span class="eyebrow">${p.eyebrow}</span>
+    <div class="pc-hero-name">Godfather<br>Espresso</div>
+    <div class="pc-hero-sub">${p.origin}</div>
+    <div class="pc-hero-vibe">— ${p.vibe} —</div>
+    <p class="pc-hero-desc">${p.desc}</p>
+    ${roastHTML(p.roast)}
+  </div>
+</div>`;
+}
+
+// ── CHAPTER BANNER ────────────────────────────────────────────────────────────
+function chapHTML(cat,meta,colNum) {
+  return `<section class="chap" style="background-image:url('${meta.bg}');background-position:${meta.bgPos}">
+  <div class="chap-overlay"></div>
+  <div class="chap-accent">${meta.accent}</div>
+  <div class="chap-inner">
+    <div class="chap-left">
+      <span class="eyebrow chap-eye">${meta.eyebrow}</span>
+      <h2 class="chap-title">${meta.title}<br><em>${meta.italic}</em></h2>
+      <p class="chap-body">${meta.body}</p>
+    </div>
+  </div>
+</section>`;
+}
+
+// ── PRODUCT PAGE ──────────────────────────────────────────────────────────────
+function productPageHTML(cat,meta,items,colNum,colLabel) {
+  const isTea=cat==='Tea';
+  const isNespresso=cat==='Nespresso';
+  const pageTag=isTea?'tea-page':'prod-page';
+  // Landscape: max items per page before overflow
+  const maxPerPage=isTea?10:(isNespresso?4:8);
+
+  // Split into pages if needed
+  if(items.length>maxPerPage) {
+    const firstBatch=items.slice(0,maxPerPage);
+    const rest=items.slice(maxPerPage);
+    const firstPage=productPageHTML(cat,meta,firstBatch,colNum,colLabel);
+    // Build overflow pages
+    let overflowPages='';
+    let i=0;
+    while(i<rest.length) {
+      const batch=rest.slice(i,i+maxPerPage);
+      const grid=isTea?`<div class="t-grid">${batch.map(tcCardHTML).join('')}</div>`:wrapGrid(batch,false,isNespresso);
+      overflowPages+=`<section class="prod-overflow">
+  <div class="prod-hdr">
+    <div class="prod-hdr-title">${colLabel} <span style="font-size:14px;font-weight:400;color:var(--text-lt)">continued</span></div>
+    <span class="prod-hdr-num">${colNum} / Collection</span>
+  </div>${grid}<div class="page-footer"><span class="footer-word">FRATELLOCOFFEE.COM</span></div></section>`;
+      i+=maxPerPage;
+    }
+    return firstPage+overflowPages;
+  }
+
+  let content='';
+  if(cat==='Espresso' && meta.heroId) {
+    const heroProduct=items.find(p=>p.id===meta.heroId);
+    const rest=items.filter(p=>p.id!==meta.heroId);
+    if(heroProduct) {
+      content=heroHTML(heroProduct);
+      if(rest.length) content+=wrapGrid(rest,false,false);
+    } else {
+      content=wrapGrid(items,false,false);
+    }
+  } else {
+    content=wrapGrid(items,isTea,isNespresso);
+  }
+
+  return `<section class="${pageTag}">
+  <div class="prod-hdr">
+    <div class="prod-hdr-title">${colLabel}</div>
+    <span class="prod-hdr-num">${colNum} / Collection</span>
+  </div>
+  ${content}
+  <div class="page-foot"><span>Fratello Coffee</span><span>fratellocoffee.com</span></div>
+</section>`;
+}
+
+// ── FULL PROPOSAL GENERATOR ───────────────────────────────────────────────────
+function buildProposalHTML(selectedProducts, clientName, repName) {
+  const date=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+
+  // Group by category in canonical order
+  const byCat={};
+  CAT_ORDER.forEach(cat=>{
+    const items=selectedProducts.filter(p=>p.cat===cat);
+    if(items.length) byCat[cat]=items;
+  });
+
+  const catLabels={"Espresso":"Godfather Espresso(TM)","Single Origin":"Direct Trade & Single Origin","Organic":"Organic Coffee","Blends":"Medium & Dark Roast","Nespresso":"Nespresso Capsules","Tea":"Tea & Beverages","Syrups & Sauces":"Syrups & Sauces","Specialty Drink Mixes":"Specialty Drink Mixes","Milk Alternatives":"Milk Alternatives"};
+
+  // Cover
+  const cover=`<section class="cover">
+  <div class="cover-wm"></div>
+  <div class="cover-top">
+    <span class="cover-top-l">Est. 1973 · Calgary, Alberta</span>
+    <span class="cover-top-r">fratellocoffee.com</span>
+  </div>
+  <div class="cover-main">
+    <div class="cover-wordmark">FRATELLO</div>
+    <hr class="cover-rule">
+    <div class="cover-sub">Product Selection</div>
+    ${clientName?`<div class="cover-for">Prepared for <strong>${clientName}</strong></div>`:''}
+    <div class="cover-stats">
+      <div class="cstat"><div class="cstat-n">${FRATELLO_YEARS}</div><div class="cstat-l">Years of Excellence</div></div>
+      <div class="cstat"><div class="cstat-n">90%+</div><div class="cstat-l">Direct Trade</div></div>
+      <div class="cstat"><div class="cstat-n">${selectedProducts.length}</div><div class="cstat-l">Products Selected</div></div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <span class="cover-tagline">Carefully Roasted · Responsibly Purchased · Consciously Chosen</span>
+    <span class="cover-year">${date}</span>
+    ${repName?`<span class="cover-rep">${repName}</span>`:''}
+  </div>
+</section>`;
+
+  // Category sections
+  let catNum=0;
+  const sections=Object.entries(byCat).map(([cat,items])=>{
+    catNum++;
+    const meta=CAT_META[cat];
+    const numStr=String(catNum).padStart(2,'0');
+    const label=catLabels[cat]||cat;
+    return chapHTML(cat,meta,numStr)+productPageHTML(cat,meta,items,numStr,label);
+  }).join('');
+
+
+  // ── ABOUT PAGE ─────────────────────────────────────────────────────────────
+  const aboutPage=`<div class="about-wrap"><section class="about-page">
+  <div class="about-left">
+    <span class="eyebrow about-eyebrow">A Premium Brand</span>
+    <h1 class="about-headline">Why Choose<br><em>Fratello?</em></h1>
+    <hr class="about-rule">
+    <blockquote class="about-pull">"We go to incredible, almost ridiculous lengths to make sure every cup expresses the natural flavors of the bean."</blockquote>
+    <div class="about-body">
+      <p>From the farms we work with directly — knowing exactly when to harvest — to the way we roast the beans and the actual brewing of the coffee itself. Everything matters.</p>
+      <p>How do you process the coffee after it has been hand picked? How can we make sure everyone who tries a cup of our coffee tastes vivid, memorable flavors? It's these questions and a hundred more like them that form the Fratello Coffee brand.</p>
+      <p>By addressing them with the greatest care and attention we can deliver an exceptional coffee experience to all the clients we serve.</p>
+    </div>
+  </div>
+  <div class="about-right">
+    <img src="https://lh3.googleusercontent.com/d/1cQexyyYkMkm7k00hLbbScYws9Z81sHkM" alt="Fratello Roastery" onerror="this.style.display='none'">
+    <div class="about-photo-stat-overlay">
+      <div style="font-size:48px;font-weight:900;color:#fff;line-height:1;">${FRATELLO_YEARS}+</div>
+      <div style="font-size:8px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2eb4af;margin-top:4px;">Years Roasting in Calgary</div>
+    </div>
+  </div>
+</section></div>`;
+
+
+  // ── OFFERING TABLES ─────────────────────────────────────────────────────────
+  function sz(p,col){
+    if(col==='2lb'){if(p.sizes.some(s=>s.includes('5 lb')))return '5 LB';return p.sizes.some(s=>s.includes('2 lb'))?'&#10003;':'&#8212;';}
+    if(col==='12oz')return p.sizes.some(s=>s.includes('12'))?'&#10003;':'&#8212;';
+    if(col==='pp')return p.sizes.some(s=>s.includes('42')||s.includes('2.5'))?'&#10003;':'&#8212;';
+    return '&#8212;';
+  }
+  const coffeeCatGroups=[
+    {label:'Espresso',ids:['B1610','B1620','B1630','B1920']},
+    {label:'Organic',ids:['B2200','B6020']},
+    {label:'Direct Trade &amp; Single Origin',ids:['B1400','B2260','B1415','B1200','B1560','B1380']},
+    {label:'Light Roast Blends',ids:['B1000','B2120']},
+    {label:'Medium Roast Blends',ids:['B1210','B1930']},
+    {label:'Dark Roast Blends',ids:['B1430','B2450','B1670']},
+    {label:'DeVina Artisan',ids:['D3000','D4000','D5000','D6000']},
+  ];
+  const coffeePs=selectedProducts.filter(p=>['Espresso','Single Origin','Organic','Blends'].includes(p.cat));
+  const nespPs=selectedProducts.filter(p=>p.cat==='Nespresso');
+  const teaPs=selectedProducts.filter(p=>p.cat==='Tea');
+  const syrupPs=selectedProducts.filter(p=>p.cat==='Syrups & Sauces');
+  const specPs=selectedProducts.filter(p=>p.cat==='Specialty Drink Mixes');
+  const milkPs=selectedProducts.filter(p=>p.cat==='Milk Alternatives');
+  let coffeeRows='';
+  coffeeCatGroups.forEach(g=>{
+    const gp=coffeePs.filter(p=>g.ids.includes(p.id));
+    if(!gp.length)return;
+    coffeeRows+=`<tr class="cat-row"><td colspan="4"><span class="cat-lbl">${g.label}</span></td></tr>`;
+    gp.forEach(p=>{coffeeRows+=`<tr><td>${p.name}${p.origin&&p.origin!==p.name?' <span style="color:rgba(255,255,255,0.4);font-size:12px;">'+p.origin+'</span>':''}</td><td>${sz(p,'2lb')}</td><td>${sz(p,'12oz')}</td><td>${sz(p,'pp')}</td></tr>`;});
+  });
+  if(nespPs.length){
+    coffeeRows+=`<tr class="cat-row"><td colspan="4"><span class="cat-lbl">Nespresso Capsules</span></td></tr>`;
+    nespPs.forEach(p=>{coffeeRows+=`<tr><td>${p.name}</td><td colspan="3" style="text-align:center;color:rgba(255,255,255,0.5);font-size:13px;">Sleeve (10 capsules) &middot; Carton (10 sleeves)</td></tr>`;});
+  }
+  const offeringDark=coffeeRows?`<div class="tbl-dark">
+  <div class="tbl-hdr"><div class="tbl-logo">FRATELLO</div><div class="tbl-sep"></div><div class="tbl-heading">Coffee Offering</div></div>
+  <div class="tbl-body"><table class="otbl"><thead><tr><th style="width:50%;">Product</th><th>2 LB</th><th>12 OZ</th><th>42 &times; 2.5 OZ</th></tr></thead><tbody>${coffeeRows}</tbody></table></div>
+  <div class="tbl-foot">fratellocoffee.com</div></div>`:'';
+
+  let teaRows='',syrupRows='';
+  if(teaPs.length){
+    const looseTea=teaPs.filter(p=>!p.eyebrow.toLowerCase().includes('latte')&&!p.eyebrow.toLowerCase().includes('concentrate'));
+    const lattes=teaPs.filter(p=>p.eyebrow.toLowerCase().includes('latte'));
+    const chai=teaPs.filter(p=>p.eyebrow.toLowerCase().includes('concentrate'));
+    if(looseTea.length) teaRows+='<table class="otbl-lt"><thead><tr><th>Idle Tea</th><th>Loose Leaf</th><th>Compostable Satchels</th></tr></thead><tbody>'+looseTea.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td><td>&#10003;</td></tr>`).join('')+'</tbody></table><div style="font-size:11px;color:rgba(255,255,255,0.45);font-style:italic;margin-top:-14px;margin-bottom:18px;padding-left:10px;">All Idle Teas available in loose leaf or compostable tea satchels.</div>';
+    if(lattes.length) teaRows+='<table class="otbl-lt"><thead><tr><th>Alternative Lattes</th><th>Size</th></tr></thead><tbody>'+lattes.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+    if(chai.length) teaRows+='<table class="otbl-lt"><thead><tr><th>Concentrates</th><th>Size</th></tr></thead><tbody>'+chai.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+  }
+  if(syrupPs.length){
+    const sauces=syrupPs.filter(p=>p.eyebrow.toLowerCase().includes('sauce'));
+    const syrups=syrupPs.filter(p=>!p.eyebrow.toLowerCase().includes('sauce'));
+    if(sauces.length) syrupRows+='<table class="otbl-lt"><thead><tr><th>Sauces</th><th>Size</th></tr></thead><tbody>'+sauces.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+    if(syrups.length) syrupRows+='<table class="otbl-lt"><thead><tr><th>Syrups</th><th>Size</th></tr></thead><tbody>'+syrups.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+    syrupRows+='<div class="promo-strip"><div class="promo-strip-icon">&#9749;</div><div class="promo-strip-txt"><strong>Complete Beverage Program</strong>Everything your caf&eacute; needs &mdash; espresso, teas, and syrups under one roof.</div></div>';
+  }
+  let specRows='',milkRows='';
+  if(specPs.length){
+    specRows='<table class="otbl-lt"><thead><tr><th>Specialty Drink Mixes</th><th>Size</th></tr></thead><tbody>'+specPs.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+  }
+  if(milkPs.length){
+    milkRows='<table class="otbl-lt"><thead><tr><th>Milk Alternatives</th><th>Size</th></tr></thead><tbody>'+milkPs.map(p=>`<tr><td>${p.name}</td><td>${p.sizes[0]}</td></tr>`).join('')+'</tbody></table>';
+  }
+
+  const offeringLight=(teaPs.length||syrupPs.length||specPs.length||milkPs.length)?`<div class="tbl-light">
+  <div class="tbl-hdr-light"><div class="tbl-logo-dk">FRATELLO</div><div class="tbl-sep-dk"></div><div class="tbl-heading">Beverage Offering</div></div>
+  <div class="tbl-body-2col"><div>${teaRows}${specRows}${milkRows}</div><div>${syrupRows}</div></div>
+  <div class="tbl-foot-lt">fratellocoffee.com</div></div>`:'';
+
+  // ── ORDER INFORMATION ───────────────────────────────────────────────────────
+  const orderPage=`<div class="order-page">
+  <div class="order-hdr"><div class="tbl-logo-dk">FRATELLO</div><div class="tbl-sep-dk"></div><div class="tbl-heading">Order Information</div></div>
+  <div class="order-grid">
+    <div class="o-blk">
+      <div class="o-ttl">Order Fulfillment Process</div>
+      <p class="o-txt">To place an order, email <strong>orderdesk@fratellocoffee.com</strong></p>
+      <p class="o-txt">Orders must be placed before the daily cut-off time of <strong>2:00 pm MST</strong>. Orders after cut-off are considered the following day&rsquo;s order.</p>
+      <div style="margin-top:14px;">
+        <div class="o-lead-row"><span>12 oz bags</span><span>2 business days</span></div>
+        <div class="o-lead-row"><span>Ground coffee</span><span>2 business days</span></div>
+        <div class="o-lead-row"><span>Whole bean stock coffee</span><span>2 business days</span></div>
+        <div class="o-lead-row"><span>Special requests / special sizes</span><span>2 &ndash; 4 business days</span></div>
+        <div class="o-lead-row"><span>Portion pack coffee</span><span>10 &ndash; 15 business days</span></div>
+      </div>
+    </div>
+    <div class="o-blk">
+      <div class="o-ttl">Case Specifications</div>
+      <table class="spec-tbl"><thead><tr><th>Bag Type</th><th>12 OZ</th><th>2 LB</th><th>Portion Pack</th></tr></thead>
+      <tbody><tr><td>Bags per Case</td><td>20</td><td>15</td><td>42 (2.5 oz)</td></tr><tr><td>Case Weight</td><td>15 LB</td><td>30 LB</td><td>6.56 LB</td></tr><tr><td>Case Dimensions</td><td>18&Prime;&times;12&Prime;&times;10&Prime;</td><td>18&Prime;&times;12&Prime;&times;16&Prime;</td><td>13&Prime;&times;13&Prime;&times;11&Prime;</td></tr></tbody></table>
+      <div class="o-ttl" style="margin-top:22px;">Order Minimums</div>
+      <p class="o-txt">No minimum order quantities for standard products. Minimums apply only for customized blends or private label orders.</p>
+    </div>
+    <div class="o-blk">
+      <div class="o-ttl">Shipping Lead Times &amp; Costs</div>
+      <p class="o-txt">All accounts are responsible for shipping costs displayed on their invoice(s). Delivery times vary by shipping method and destination. Shipping is unavailable on weekends.</p>
+      <p class="o-txt">Local Calgary orders: flat fee of <strong>$20</strong>. Outside Calgary: cost varies by weight and destination.</p>
+    </div>
+    <div class="o-blk">
+      <div class="o-ttl">Payment Methods</div>
+      <p class="o-txt">Accepted methods include credit cards, e-Transfers, EFT/ACH, and checks. For questions about credit terms or to set up an account, contact <strong>orderdesk@fratellocoffee.com</strong></p>
+      <div class="o-ttl" style="margin-top:20px;">Hours of Operation</div>
+      <div class="hours-row"><span>Monday &ndash; Friday</span><strong>8:30 am &ndash; 5:00 pm</strong></div>
+      <p class="o-txt" style="margin-top:12px;font-size:13px;">Closed weekends and statutory holidays.</p>
+    </div>
+  </div>
+</div></div>`;
+
+  // ── THANK YOU ───────────────────────────────────────────────────────────────
+  const thankYou=`<section class="ty-page">
+  <div class="ty-wm"></div>
+  <div class="ty-inner">
+    <div>
+      <h2 class="ty-title">Thank<br><em>You.</em></h2>
+      <hr class="ty-rule">
+      <p class="ty-txt">We are deeply grateful for the opportunity to share our journey and offerings with you. Our extensive experience in the coffee industry spans over 50 years, during which we have garnered invaluable insights.</p>
+      <p class="ty-txt">This experience encompasses direct relationships with coffee producers globally, mastering the art of roasting beans to highlight their natural flavors, and our commitment to excellence through the creation of innovative Slayer Espresso machines.</p>
+      <p class="ty-txt">Our journey includes founding and operating the successful Analog Coffee chain for 12 years, and the meticulous sourcing of fine loose-leaf Idle Teas and crafting distinctive Idle Chai concentrates.</p>
+      <p class="ty-txt">It is our sincere hope that Fratello Coffee will be seen as more than a supplier &mdash; we envision being a valued business partner and a pivotal asset to your success.</p>
+    </div>
+    <div>
+      <div style="font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;margin-bottom:12px;">Your Contacts</div>
+      <div class="contact-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:12px;">
+        <div class="contact-card">
+          <div class="contact-name">Russ<br>Prefontaine</div>
+          <div class="contact-role">President</div>
+          <a href="tel:+14032874585" class="contact-phone">(403) 287-4585</a>
+          <a href="mailto:russ@fratellocoffee.com" class="contact-email">russ@fratellocoffee.com</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-name">Joel<br>May</div>
+          <div class="contact-role">Key Account Manager</div>
+          <a href="tel:+14036133601" class="contact-phone">403.613.3601</a>
+          <a href="mailto:joel@fratellocoffee.com" class="contact-email">joel@fratellocoffee.com</a>
+        </div>
+        <div class="contact-card">
+          <div class="contact-name">D&rsquo;arcy<br>Watsham</div>
+          <div class="contact-role">Sales</div>
+          <span class="contact-phone">TBD</span>
+          <a href="mailto:darcy@fratellocoffee.com" class="contact-email">darcy@fratellocoffee.com</a>
+        </div>
+      </div>
+      <div class="cbox-learn"><div class="cbox-learn-eye">Learn More</div><div class="cbox-learn-txt">Watch a short documentary about our story:</div><a href="https://fratellocoffee.com/pages/our-story" target="_blank" class="cbox-learn-link" style="text-decoration:none;">fratellocoffee.com/pages/our-story &rarr;</a></div>
+      <div class="cbox-order"><div class="cbox-order-eye">Order Desk</div><a href="mailto:orderdesk@fratellocoffee.com" class="cbox-order-email" style="text-decoration:none;">orderdesk@fratellocoffee.com</a><div class="cbox-order-detail">4021 9 St SE, Calgary, AB T2G 3C7</div><div class="cbox-order-detail">403-265-2112 &middot; 1-800-465-7227</div></div>
+    </div>
+  </div>
+  <div class="ty-foot">Fratello Group Inc. &middot; fratellocoffee.com</div>
+</section>`;
+
+
+  // Back cover
+  const backCover=`<section class="back-cover">
+  <div class="bc-wm"></div>
+  <div class="bc-main">
+    <div class="bc-wordmark">FRATELLO</div>
+    <hr class="bc-rule">
+    <div class="bc-tagline">Carefully Roasted · Responsibly Purchased · Consciously Chosen</div>
+  </div>
+  <div class="bc-bottom">
+    <div class="bc-address">Fratello Group Inc. · 4021 9 St SE, Calgary, AB T2G 3C7<br>403-265-2112 · 1-800-465-7227 · info@fratellocoffee.com</div>
+    <span class="bc-web">fratellocoffee.com</span>
+  </div>
+</section>`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}</style></head><body>${cover}${aboutPage}${sections}${offeringDark}${offeringLight}${orderPage}${thankYou}${backCover}
+<div class="lb-overlay" id="lb" onclick="if(event.target===this)closeLB()">
+  <div class="lb-box">
+    <button class="lb-close" onclick="closeLB()">&#10005;</button>
+    <div class="lb-img-wrap"><img id="lb-img" src="" alt=""></div>
+    <div class="lb-info">
+      <div class="lb-eyebrow" id="lb-eye"></div>
+      <div class="lb-name" id="lb-name"></div>
+      <div class="lb-origin" id="lb-origin"></div>
+      <div class="lb-vibe" id="lb-vibe"></div>
+      <div class="lb-desc" id="lb-desc"></div>
+      <div class="lb-roast" id="lb-roast-wrap"><span class="lb-roast-lbl">Roast</span><div id="lb-roast-dots" style="display:flex;gap:4px;"></div></div>
+      <div class="lb-sizes" id="lb-sizes"></div>
+    </div>
+  </div>
+</div>
+<script>
+function openLB(img,eye,name,origin,vibe,desc,roast,sizes){
+  document.getElementById('lb-img').src=img;
+  document.getElementById('lb-eye').textContent=eye;
+  document.getElementById('lb-name').textContent=name;
+  document.getElementById('lb-origin').textContent=origin;
+  document.getElementById('lb-vibe').textContent='\u2014 '+vibe+' \u2014';
+  document.getElementById('lb-desc').textContent=desc;
+  var dots=document.getElementById('lb-roast-dots');
+  dots.innerHTML='';
+  if(roast>0){for(var i=1;i<=5;i++){var d=document.createElement('div');d.className='lb-dot';d.style.background=i<=roast?'#2eb4af':'#DDD6C4';dots.appendChild(d);}
+  document.getElementById('lb-roast-wrap').style.display='flex';}
+  else{document.getElementById('lb-roast-wrap').style.display='none';}
+  var sz=document.getElementById('lb-sizes');
+  sz.innerHTML=sizes.map(function(s){return'<span class="lb-size">'+s+'</span>';}).join('');
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB(){document.getElementById('lb').classList.remove('open');}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLB();});
+<\/script></body></html>`;
+}
+
+// ── SELECTOR COMPONENTS ───────────────────────────────────────────────────────
+const CATS=CAT_ORDER;
+
+function RoastDots({n}){
+  if(!n)return null;
+  return <div style={{display:"flex",alignItems:"center",gap:4,marginTop:8}}>
+    <span style={{fontSize:8,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,0.3)",marginRight:4}}>Roast</span>
+    {[1,2,3,4,5].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:i<=n?TEAL:"rgba(255,255,255,0.12)"}}/>)}
+  </div>;
+}
+
+const ProductCard=memo(function ProductCard({p,sel,onToggle,animDelay}){
+  const catInfo=CAT_CLR[p.cat]||"#333";
+  return <div className={"card-enter prod-card"+(sel?" prod-sel":"")} onClick={()=>onToggle(p.id)}
+    style={{cursor:"pointer",borderRadius:10,overflow:"hidden",
+      border:"2px solid "+(sel?"rgba(46,180,175,0.75)":"rgba(255,255,255,0.06)"),
+      background:sel?"rgba(46,180,175,0.06)":"rgba(255,255,255,0.025)",
+      transition:"border-color 0.18s,background 0.18s,transform 0.18s,box-shadow 0.18s",position:"relative",animationDelay:animDelay||"0ms"}}>
+    {sel&&<div style={{position:"absolute",top:9,right:9,zIndex:3,width:22,height:22,borderRadius:"50%",
+      background:TEAL,display:"flex",alignItems:"center",justifyContent:"center",
+      fontSize:12,color:"#fff",fontWeight:700,boxShadow:"0 2px 8px rgba(46,180,175,0.4)"}}>✓</div>}
+    {p.comingSoon ? (
+      <div className="card-img" style={{height:155,background:"#111",display:"flex",flexDirection:"column",
+        alignItems:"center",justifyContent:"center",gap:8,position:"relative"}}>
+        <div className="cat-badge" style={{position:"absolute",top:8,left:8,background:catInfo,padding:"2px 7px",borderRadius:3,
+          fontSize:7,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,0.88)"}}>{p.cat}</div>
+        <div style={{fontSize:8,fontWeight:700,letterSpacing:4,textTransform:"uppercase",
+          color:TEAL,border:"1px solid rgba(46,180,175,0.4)",borderRadius:4,padding:"5px 12px"}}>Coming Soon</div>
+      </div>
+    ) : (
+      <div className="card-img" style={{height:170,background:"#111",position:"relative",
+        display:"flex",alignItems:"center",justifyContent:"center",padding:"10px 14px 10px"}}>
+        <div style={{
+          background:"#ffffff",
+          borderRadius:14,
+          width:"100%",height:"100%",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          overflow:"hidden",
+          boxShadow:"0 2px 12px rgba(0,0,0,0.25)"
+        }}>
+          <img src={p.img} alt={p.name}
+            style={{width:"90%",height:"90%",objectFit:"contain",objectPosition:"center"}}
+            onError={e=>{
+              e.target.parentElement.style.background="#1e1e1e";
+              e.target.style.display="none";
+            }}/>
+        </div>
+        <div className="cat-badge" style={{position:"absolute",top:6,left:6,background:catInfo,padding:"2px 7px",borderRadius:3,
+          fontSize:7,fontWeight:700,letterSpacing:2,textTransform:"uppercase",
+          color:"rgba(255,255,255,0.9)",zIndex:2}}>{p.cat}</div>
+      </div>
+    )}
+    <div className="card-info" style={{padding:"12px 13px 14px"}}>
+      <div className="card-eyebrow" style={{fontSize:7,letterSpacing:3,textTransform:"uppercase",color:TEAL,marginBottom:3}}>{p.eyebrow}</div>
+      <div className="card-name" style={{fontFamily:"'Cormorant Garamond',serif",fontSize:15,fontWeight:600,color:"#fff",lineHeight:1.2,marginBottom:2}}>{p.name}</div>
+      <div style={{fontSize:10,color:"rgba(255,255,255,0.38)",marginBottom:5}}>{p.origin}</div>
+      <div style={{fontSize:10,fontStyle:"italic",color:TEAL}}>— {p.vibe} —</div>
+      {p.roast>0&&<div style={{display:"flex",alignItems:"center",gap:4,marginTop:8}}>
+        <span style={{fontSize:7,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,0.28)",marginRight:3}}>Roast</span>
+        {[1,2,3,4,5].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:i<=p.roast?TEAL:"rgba(255,255,255,0.1)"}}/>)}
+      </div>}
+      <div style={{marginTop:9,display:"flex",flexWrap:"wrap",gap:3}}>
+        {p.sizes.map(sz=><span key={sz} style={{fontSize:8,letterSpacing:0.5,padding:"2px 6px",borderRadius:3,
+          border:"1px solid rgba(255,255,255,0.09)",color:"rgba(255,255,255,0.35)"}}>{sz}</span>)}
+      </div>
+    </div>
+  </div>;
+});
+
+function CategoryRow({cat,products,selected,onToggleGroup}){
+  const ids=products.map(p=>p.id);
+  const allSel=ids.length>0&&ids.every(id=>selected.has(id));
+  const someSel=ids.some(id=>selected.has(id));
+  return <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,marginTop:4}}>
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <div style={{width:10,height:10,borderRadius:2,background:CAT_CLR[cat]||"#333"}}/>
+      <span style={{fontSize:9,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:"rgba(255,255,255,0.55)"}}>{cat}</span>
+      <span style={{fontSize:9,color:"rgba(255,255,255,0.2)",letterSpacing:1}}>{products.length} products</span>
+    </div>
+    <button onClick={()=>onToggleGroup(cat)} style={{
+      cursor:"pointer",background:"none",
+      border:`1px solid ${allSel?"rgba(46,180,175,0.6)":"rgba(255,255,255,0.1)"}`,
+      borderRadius:20,padding:"4px 12px",fontSize:9,fontWeight:700,letterSpacing:1,
+      textTransform:"uppercase",
+      color:allSel?TEAL:someSel?"rgba(255,255,255,0.5)":"rgba(255,255,255,0.3)",
+      transition:"all 0.15s",
+    }}>{allSel?"✓ All selected":"Select all"}</button>
+  </div>;
+}
+
+function App(){
+  // ── URL SHARING: read ?p=ID1,ID2 from URL on load ──
+  const getInitialSelection=()=>{
+    try{
+      const params=new URLSearchParams(window.location.search);
+      const pParam=params.get('p');
+      if(pParam){
+        const ids=pParam.split(',').filter(id=>PRODUCTS.some(pr=>pr.id===id));
+        if(ids.length)return new Set(ids);
+      }
+    }catch(e){}
+    return new Set();
+  };
+  const [selected,setSelected]=useState(getInitialSelection);
+  const [activeCat,setActiveCat]=useState("All");
+  const [search,setSearch]=useState("");
+  const [clientName,setClientName]=useState(()=>{
+    try{return new URLSearchParams(window.location.search).get('client')||"";}catch(e){return "";}
+  });
+  const [repName,setRepName]=useState("");
+  const [showModal,setShowModal]=useState(false);
+  const [modalOpen,setModalOpen]=useState(false);
+  const [linkCopied,setLinkCopied]=useState(false);
+
+  // ── Sync selection to URL (without reload) — skip if too many products to avoid browser crashes ──
+  useEffect(()=>{
+    try{
+      const params=new URLSearchParams();
+      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(clientName) params.set('client',clientName);
+      const qs=params.toString();
+      const newUrl=window.location.pathname+(qs?'?'+qs:'');
+      window.history.replaceState(null,'',newUrl);
+    }catch(e){/* silently fail on in-app browsers */}
+  },[selected,clientName]);
+
+  // ── Copy shareable link ──
+  const copyShareLink=()=>{
+    try{
+      const params=new URLSearchParams();
+      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(clientName) params.set('client',clientName);
+      const url=window.location.origin+window.location.pathname+'?'+params.toString();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(()=>{
+          setLinkCopied(true);setTimeout(()=>setLinkCopied(false),2000);
+        }).catch(()=>{prompt("Copy this link:",url);});
+      }else{prompt("Copy this link:",url);}
+    }catch(e){alert("Could not copy link");}
+  };
+
+  useEffect(()=>{
+    const splash=document.getElementById("splash");
+    const t=setTimeout(()=>{splash&&splash.classList.add("out");},1200);
+    return ()=>clearTimeout(t);
+  },[]);
+
+  useEffect(()=>{
+    const handler=e=>{
+      if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&document.activeElement.tagName!=='INPUT'){
+        e.preventDefault();
+        const el=document.getElementById('search-input');
+        if(el)el.focus();
+      }
+      if(e.key==='Escape'&&document.activeElement.tagName==='INPUT'){
+        document.activeElement.blur();
+        setSearch('');
+      }
+    };
+    document.addEventListener('keydown',handler);
+    return ()=>document.removeEventListener('keydown',handler);
+  },[]);
+
+  const openModal=()=>{setShowModal(true);setTimeout(()=>setModalOpen(true),10)};
+  const closeModal=()=>{setModalOpen(false);setTimeout(()=>setShowModal(false),280)};
+
+  const filtered=useMemo(()=>PRODUCTS.filter(p=>{
+    if(activeCat!=="All"&&p.cat!==activeCat)return false;
+    if(search){const q=search.toLowerCase();if(!p.name.toLowerCase().includes(q)&&!p.cat.toLowerCase().includes(q)&&!p.vibe.toLowerCase().includes(q)&&!p.id.toLowerCase().includes(q)&&!p.desc.toLowerCase().includes(q)&&!(p.eyebrow||'').toLowerCase().includes(q))return false;}
+    return true;
+  }),[activeCat,search]);
+
+  const selectedProducts=PRODUCTS.filter(p=>selected.has(p.id));
+
+  const toggle=useCallback(id=>setSelected(prev=>{const n=new Set(prev);n.has(id)?n.delete(id):n.add(id);return n}),[]);
+
+  const toggleGroup=cat=>{
+    const ids=PRODUCTS.filter(p=>p.cat===cat).map(p=>p.id);
+    if(!ids.length)return;
+    const allSel=ids.every(id=>selected.has(id));
+    setSelected(prev=>{const n=new Set(prev);if(allSel)ids.forEach(id=>n.delete(id));else ids.forEach(id=>n.add(id));return n});
+  };
+
+  const allSelected=PRODUCTS.length>0&&PRODUCTS.every(p=>selected.has(p.id));
+  const toggleSelectAll=()=>{
+    if(allSelected) setSelected(new Set());
+    else setSelected(new Set(PRODUCTS.map(p=>p.id)));
+  };
+
+  const [view,setView]=useState("catalog");
+  const [proposalHTML,setProposalHTML]=useState("");
+
+  const handleBuild=()=>{
+    try{
+      const html=buildProposalHTML(selectedProducts,clientName,repName);
+      setProposalHTML(html);
+      setView("proposal");
+      closeModal();
+    }catch(err){
+      console.error("Proposal error:",err);
+      alert("Error al generar la propuesta: "+err.message);
+    }
+  };
+
+  const groupedByCategory=useMemo(()=>{
+    if(activeCat!=="All")return null;
+    const groups={};
+    CATS.forEach(cat=>{
+      const items=PRODUCTS.filter(p=>{
+        if(p.cat!==cat)return false;
+        if(!search)return true;
+        const q=search.toLowerCase();
+        return p.name.toLowerCase().includes(q)||p.vibe.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||(p.eyebrow||'').toLowerCase().includes(q);
+      });
+      if(items.length)groups[cat]=items;
+    });
+    return groups;
+  },[activeCat,search]);
+
+  const catCounts=useMemo(()=>{const c={};CATS.forEach(cat=>{c[cat]=PRODUCTS.filter(p=>p.cat===cat).length;});return c;},[]);
+  const pill=(label,active,onClick,count)=><button className="cat-pill" onClick={onClick} style={{background:active?TEAL:"rgba(255,255,255,0.05)",color:active?"#fff":"rgba(255,255,255,0.45)"}}>{label}{count!=null&&<span style={{marginLeft:5,fontSize:8,opacity:0.6}}>({count})</span>}</button>;
+  const btn={cursor:"pointer",border:"none",borderRadius:6,fontSize:10,fontWeight:700,letterSpacing:1,padding:"7px 16px",transition:"all 0.15s",fontFamily:"'Montserrat',sans-serif"};
+
+  
+  if(view==="proposal"){
+    return(
+      <div style={{position:"fixed",inset:0,background:"#fff",zIndex:9999,display:"flex",flexDirection:"column"}}>
+        <div className="mobile-propbar" style={{height:52,background:"#0d0d0d",display:"flex",alignItems:"center",
+          justifyContent:"space-between",padding:"0 24px",flexShrink:0,
+          borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
+          <button onClick={()=>setView("catalog")} style={{
+            cursor:"pointer",background:"none",border:"1px solid rgba(255,255,255,0.15)",
+            borderRadius:6,padding:"7px 16px",color:"rgba(255,255,255,0.6)",
+            fontSize:11,letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
+            ← Edit
+          </button>
+          <span style={{color:"rgba(255,255,255,0.3)",fontSize:9,letterSpacing:3,
+            textTransform:"uppercase",fontFamily:"'Montserrat',sans-serif"}}>
+            {selectedProducts.length} products{clientName?" · "+clientName:""}
+          </span>
+          <button onClick={()=>{
+            const f=document.getElementById("prop-frame");
+            if(f&&f.contentWindow)f.contentWindow.print();
+          }} style={{
+            cursor:"pointer",background:TEAL,border:"none",borderRadius:6,
+            padding:"8px 20px",color:"#fff",fontSize:11,fontWeight:700,
+            letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
+            Save PDF ↓
+          </button>
+        </div>
+        <iframe id="prop-frame" srcDoc={proposalHTML}
+          style={{flex:1,width:"100%",border:"none",display:"block"}}
+          title="Fratello Proposal"/>
+      </div>
+    );
+  }
+
+  return <div style={{background:"#0d0d0d",minHeight:"100vh",color:"#fff"}}>
+    {/* Header */}
+    <div className="mobile-header" style={{height:54,padding:"0 22px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(0,0,0,0.8)",position:"sticky",top:0,zIndex:50,backdropFilter:"blur(10px)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:11}}>
+        <div className="hdr-brand" style={{fontSize:16,fontWeight:900,letterSpacing:"0.22em",color:"#fff"}}>FRATELLO</div>
+        <div style={{width:1,height:17,background:"rgba(255,255,255,0.1)"}}/>
+        <div className="hdr-sub" style={{fontSize:8,letterSpacing:3,color:TEAL,textTransform:"uppercase"}}>Proposal Builder</div>
+      </div>
+      <div className="hdr-btns" style={{display:"flex",gap:8,alignItems:"center"}}>
+        {selected.size>0&&<button onClick={()=>setSelected(new Set())} style={{...btn,background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.4)"}}>Clear</button>}
+        {selected.size>0&&<button onClick={copyShareLink} style={{...btn,background:linkCopied?"rgba(46,180,175,0.2)":"rgba(255,255,255,0.06)",color:linkCopied?TEAL:"rgba(255,255,255,0.4)",border:linkCopied?"1px solid rgba(46,180,175,0.4)":"1px solid transparent",transition:"all 0.2s"}}>
+          {linkCopied?"\u2713 Link Copied":"Copy Link"}
+        </button>}
+        <button onClick={()=>selected.size>0&&openModal()} style={{...btn,background:selected.size>0?TEAL:"rgba(255,255,255,0.07)",color:selected.size>0?"#fff":"rgba(255,255,255,0.2)",cursor:selected.size>0?"pointer":"default",padding:"8px 18px"}}>
+          {selected.size>0?`Generate Proposal (${selected.size})`:"Select products"}
+        </button>
+      </div>
+    </div>
+
+    {/* Modal */}
+    {showModal&&<div className={`modal-backdrop ${modalOpen?"open":""}`} onClick={e=>{if(e.target===e.currentTarget)closeModal()}}>
+      <div className="modal-box">
+        <div style={{fontSize:8,letterSpacing:3,color:TEAL,textTransform:"uppercase",marginBottom:5}}>Almost there</div>
+        <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:24,fontWeight:600,marginBottom:22}}>Proposal Details</div>
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:9,letterSpacing:2,color:"rgba(255,255,255,0.32)",textTransform:"uppercase",marginBottom:8}}>Client / Company name</div>
+          <input value={clientName} onChange={e=>setClientName(e.target.value)} placeholder="e.g. Blue Star Café" style={{width:"100%",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:6,padding:"10px 14px",color:"#fff",fontSize:13,fontFamily:"'Montserrat',sans-serif"}}/>
+        </div>
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:9,letterSpacing:2,color:"rgba(255,255,255,0.32)",textTransform:"uppercase",marginBottom:8}}>Your name (optional)</div>
+          <input value={repName} onChange={e=>setRepName(e.target.value)} placeholder="e.g. Joel May" style={{width:"100%",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:6,padding:"10px 14px",color:"#fff",fontSize:13,fontFamily:"'Montserrat',sans-serif"}}/>
+        </div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:22}}>
+          {Object.entries(selectedProducts.reduce((acc,p)=>{acc[p.cat]=(acc[p.cat]||0)+1;return acc},{}) ).map(([cat,count])=><span key={cat} style={{fontSize:8,letterSpacing:1,padding:"3px 9px",borderRadius:20,background:(CAT_CLR[cat]||"#333")+"33",border:`1px solid ${(CAT_CLR[cat]||"#333")}55`,color:"rgba(255,255,255,0.6)",textTransform:"uppercase",fontWeight:700}}>{count} {cat}</span>)}
+        </div>
+        <div style={{display:"flex",gap:9}}>
+          <button onClick={closeModal} style={{...btn,flex:1,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)"}}>Cancel</button>
+          <button onClick={handleBuild} style={{...btn,flex:2,background:TEAL,color:"#fff"}}>Open Proposal →</button>
+        </div>
+      </div>
+    </div>}
+
+    {/* Filters */}
+    <div className="mobile-filters" style={{padding:"11px 22px",display:"flex",gap:7,flexWrap:"wrap",alignItems:"center",background:"rgba(255,255,255,0.01)",borderBottom:"1px solid rgba(255,255,255,0.05)",position:"sticky",top:54,zIndex:40,backdropFilter:"blur(8px)"}}>
+      <button onClick={toggleSelectAll} className="cat-pill" style={{cursor:"pointer",background:allSelected?"rgba(46,180,175,0.18)":"rgba(255,255,255,0.06)",border:"1px solid "+(allSelected?"rgba(46,180,175,0.5)":"rgba(255,255,255,0.12)"),borderRadius:6,padding:"7px 16px",color:allSelected?"#2eb4af":"rgba(255,255,255,0.55)",fontSize:10,fontWeight:700,letterSpacing:1,whiteSpace:"nowrap",flexShrink:0,transition:"all 0.15s"}}>
+        {allSelected ? "✓ All Selected" : "Select All"}
+      </button>
+      <div style={{width:1,height:18,background:"rgba(255,255,255,0.1)",flexShrink:0}}/>
+            <input id="search-input" value={search} onChange={e=>setSearch(e.target.value)} placeholder='Search products... ( / )' style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:6,padding:"7px 13px",color:"#fff",fontSize:11,width:220,fontFamily:"'Montserrat',sans-serif"}}/>
+      {pill("All",activeCat==="All",()=>setActiveCat("All"),PRODUCTS.length)}
+      {CATS.map(c=>pill(c,activeCat===c,()=>setActiveCat(c),catCounts[c]))}
+      <div className="filter-count" style={{marginLeft:"auto",fontSize:9,letterSpacing:2,color:"rgba(255,255,255,0.18)",textTransform:"uppercase"}}>
+        {filtered.length} products{selected.size>0&&<span style={{color:TEAL}}> · {selected.size} selected</span>}
+      </div>
+    </div>
+
+    {/* Grid */}
+    <div style={{padding:"20px 12px 100px"}}>
+      {groupedByCategory?(()=>{
+        const cats=Object.entries(groupedByCategory);
+        return(<>
+          {cats.map(([cat,items])=><div key={cat} style={{marginBottom:36}}>
+            <CategoryRow cat={cat} products={items} selected={selected} onToggleGroup={toggleGroup}/>
+            <div className="mobile-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:11}}>
+              {items.map((p,i)=><ProductCard key={p.id} p={p} sel={selected.has(p.id)} onToggle={toggle} animDelay={`${i*35}ms`}/>)}
+            </div>
+          </div>)}
+        </>);
+      })():
+      <><div style={{marginBottom:16}}><CategoryRow cat={activeCat} products={filtered} selected={selected} onToggleGroup={toggleGroup}/></div>
+      <div className="mobile-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:11}}>
+        {filtered.map((p,i)=><ProductCard key={p.id} p={p} sel={selected.has(p.id)} onToggle={toggle} animDelay={`${i*30}ms`}/>)}
+        {filtered.length===0&&<div style={{gridColumn:"1/-1",textAlign:"center",padding:"80px 0",color:"rgba(255,255,255,0.15)",fontSize:13}}>No products match your search.</div>}
+      </div></>}
+    </div>
+
+    {/* Floating bar */}
+    <div className={`float-bar ${selected.size>0?"show":""}`}>
+      <span style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}><strong style={{color:"#fff"}}>{selected.size}</strong> product{selected.size!==1?"s":""} selected</span>
+      <div style={{width:1,height:16,background:"rgba(255,255,255,0.1)"}}/>
+      <button onClick={()=>setSelected(new Set())} style={{...btn,background:"none",color:"rgba(255,255,255,0.3)",padding:"3px 6px"}}>Clear</button>
+      <button onClick={openModal} style={{...btn,background:TEAL,color:"#fff",borderRadius:24,padding:"8px 20px"}}>Generate Proposal →</button>
+    </div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
