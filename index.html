@@ -793,7 +793,6 @@ body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webki
 html,body{height:auto!important;overflow:visible!important}
 body::after{display:none!important}
 #toolbar{display:none!important}
-@page{size:A4 landscape;margin:0}
 .cover{page-break-after:always;min-height:100vh;height:100vh}
 .about-wrap,.about-page{page-break-after:always}
 .chap{page-break-before:always;page-break-after:avoid;min-height:44vh;max-height:55vh}
@@ -920,7 +919,7 @@ body::after{display:none!important}
 .prod-overflow .prod-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--cream-deep);border-top:2px solid var(--teal);padding-top:12px;margin-bottom:24px}
 
 /* ══ MOBILE RESPONSIVE FOR PROPOSAL ══ */
-@media screen and (max-width:768px){
+@media (max-width:768px){
   /* Cover */
   .cover{padding:28px 20px;height:auto;min-height:100vh}
   .cover-wordmark{font-size:42px;letter-spacing:0.18em}
@@ -1034,7 +1033,7 @@ body::after{display:none!important}
   /* Contact grid */
   .contact-grid{grid-template-columns:1fr!important;gap:6px!important}
 }
-@media screen and (max-width:400px){
+@media (max-width:400px){
   .pg-3,.pg-4,.pg-2{grid-template-columns:1fr!important}
   .t-grid{grid-template-columns:1fr!important}
   .cover-stats{flex-direction:column;gap:16px}
@@ -1451,7 +1450,19 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   </div>
 </section>`;
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}</style><script>
+  // Detect viewport at proposal generation time
+  const isMobileViewport=typeof window!=='undefined'&&window.innerWidth<=768;
+  const vw=isMobileViewport?(window.innerWidth||414):0;
+  const vh=isMobileViewport?Math.max(window.innerHeight||736,Math.round(vw*1.6)):0;
+  // Build dynamic page rules:
+  // - Mobile: page size matches viewport so media queries (max-width:768px) apply during print
+  // - Desktop: keep A4 landscape
+  const dynamicPrintCSS=isMobileViewport
+    ? `@media print { @page { size: ${vw}px ${vh}px; margin: 0 } html, body { width: ${vw}px } .cover, .chap, .ty-page, .back-cover { min-height: ${vh}px !important; height: auto !important } .about-page { height: auto !important; min-height: ${vh}px !important } }`
+    : `@media print { @page { size: A4 landscape; margin: 0 } }`;
+
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}
+${dynamicPrintCSS}</style><script>
 window.imgFallback=function(el,name){
   if(!el||el.dataset.fb)return;
   el.dataset.fb='1';
