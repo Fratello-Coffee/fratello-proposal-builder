@@ -923,7 +923,7 @@ body::after{display:none!important}
   /* Cover */
   .cover{padding:28px 20px;height:auto;min-height:100vh}
   .cover-wordmark{font-size:42px;letter-spacing:0.18em}
-  .cover-stats{gap:24px;margin-top:28px;flex-wrap:wrap;justify-content:center}
+  .cover-stats{flex-direction:column;align-items:center;gap:16px;margin-top:28px}
   .cstat-n{font-size:32px}
   .cover-sub{font-size:10px;letter-spacing:0.3em;margin-bottom:20px}
   .cover-for{font-size:13px}
@@ -1450,19 +1450,97 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   </div>
 </section>`;
 
-  // Detect viewport at proposal generation time
+  // Detect viewport at proposal generation time.
+  // Mobile (≤768px): A5 portrait (148×210mm). Standard size all browsers respect.
+  //   Page width 559 CSS px is < 768, so the @media (max-width:768px) rules in
+  //   PROPOSAL_CSS fire automatically during print rendering.
+  // Desktop (>768px): A4 landscape — full-size professional format.
+  // mobilePrintOverrides below forces critical mobile layout rules with !important
+  // so the PDF stays mobile-styled even if some print-rendering quirks exist.
   const isMobileViewport=typeof window!=='undefined'&&window.innerWidth<=768;
-  const vw=isMobileViewport?(window.innerWidth||414):0;
-  const vh=isMobileViewport?Math.max(window.innerHeight||736,Math.round(vw*1.6)):0;
-  // Build dynamic page rules:
-  // - Mobile: page size matches viewport so media queries (max-width:768px) apply during print
-  // - Desktop: keep A4 landscape
   const dynamicPrintCSS=isMobileViewport
-    ? `@media print { @page { size: ${vw}px ${vh}px; margin: 0 } html, body { width: ${vw}px } .cover, .chap, .ty-page, .back-cover { min-height: ${vh}px !important; height: auto !important } .about-page { height: auto !important; min-height: ${vh}px !important } }`
+    ? `@media print { @page { size: A5 portrait; margin: 0 } }`
     : `@media print { @page { size: A4 landscape; margin: 0 } }`;
+  const mobilePrintOverrides=isMobileViewport?`
+@media print {
+  .cover-stats{flex-direction:column!important;align-items:center!important;gap:16px!important;margin-top:28px!important}
+  .cover-wordmark{font-size:54px!important;letter-spacing:0.20em!important}
+  .cstat-n{font-size:36px!important}
+  .about-page{grid-template-columns:1fr!important;height:auto!important;min-height:auto!important}
+  .about-left{padding:30px 24px!important}
+  .about-headline{font-size:32px!important}
+  .about-right{min-height:240px!important}
+  .diff-bar{grid-template-columns:repeat(2,1fr)!important}
+  .diff-item{padding:16px 12px!important}
+  .chap{min-height:280px!important;max-height:none!important}
+  .chap-inner{padding:30px 24px!important;flex-direction:column!important}
+  .chap-title{font-size:38px!important}
+  .chap-body{font-size:13px!important;max-width:100%!important}
+  .chap-accent{font-size:64px!important;right:14px!important;bottom:-8px!important}
+  .prod-page,.tea-page,.prod-overflow{padding:24px 18px 18px!important}
+  .prod-hdr{flex-direction:column!important;gap:4px!important;align-items:flex-start!important}
+  .prod-hdr-title{font-size:18px!important}
+  .pg-3,.pg-4{grid-template-columns:repeat(2,1fr)!important;gap:18px 12px!important}
+  .pg-2{grid-template-columns:repeat(2,1fr)!important;gap:18px 12px!important;max-width:100%!important}
+  .pg-1{padding:0!important}
+  .pg-1 .pc{max-width:100%!important}
+  .pc{padding:10px 6px 12px!important}
+  .pc-img{width:100px!important;height:120px!important;border-radius:8px!important}
+  .pc-img.nespresso-img{width:110px!important;height:130px!important}
+  .pc-name{font-size:13px!important}
+  .pc-name.sm{font-size:11px!important}
+  .pc-origin{font-size:7px!important;letter-spacing:1.5px!important}
+  .pc-vibe{font-size:11px!important}
+  .pc-desc{font-size:10px!important;max-width:100%!important;line-height:1.5!important}
+  .pc-eye{font-size:7px!important;letter-spacing:2px!important}
+  .pc-hero{grid-template-columns:1fr!important}
+  .pc-hero-img-wrap{padding:20px 18px 0!important}
+  .pc-hero-img-wrap img{width:180px!important}
+  .pc-hero-body{padding:20px 18px 24px!important}
+  .pc-hero-name{font-size:30px!important}
+  .pc-hero-desc{font-size:13px!important}
+  .t-grid{grid-template-columns:repeat(2,1fr)!important;gap:16px 10px!important}
+  .tc-img{width:70px!important;height:88px!important}
+  .tc-name{font-size:12px!important}
+  .tc-desc{font-size:10px!important;max-width:100%!important}
+  .tc-origin{font-size:7px!important;max-width:100%!important}
+  .tbl-hdr,.tbl-hdr-light{padding:22px 18px 14px!important}
+  .tbl-body{padding:16px 18px 24px!important}
+  .tbl-body-2col{padding:16px 18px 24px!important;grid-template-columns:1fr!important;gap:24px!important}
+  .otbl{font-size:11px!important}
+  .otbl thead tr th{font-size:7px!important;padding:7px 8px!important}
+  .otbl tbody tr td{padding:8px 8px!important;font-size:11px!important}
+  .tbl-foot,.tbl-foot-lt{padding:11px 18px!important}
+  .otbl-lt{font-size:11px!important}
+  .tbl-logo,.tbl-logo-dk{font-size:16px!important;letter-spacing:4px!important}
+  .order-hdr{padding:22px 18px 14px!important}
+  .order-grid{padding:16px 18px 24px!important;grid-template-columns:1fr!important;gap:14px!important}
+  .o-blk{padding:16px!important}
+  .o-txt{font-size:11px!important}
+  .o-lead-row{font-size:10px!important}
+  .spec-tbl{font-size:10px!important}
+  .spec-tbl th{font-size:6px!important}
+  .ty-page{padding:30px 22px 22px!important}
+  .ty-inner{grid-template-columns:1fr!important;gap:28px!important}
+  .ty-title{font-size:42px!important}
+  .ty-txt{font-size:11px!important}
+  .contact-grid{grid-template-columns:1fr!important;gap:8px!important}
+  .contact-card{padding:11px!important}
+  .contact-name{font-size:12px!important}
+  .contact-email{font-size:9px!important;word-break:break-all!important}
+  .contact-phone{font-size:10px!important}
+  .contact-role{font-size:7px!important}
+  .cbox-learn,.cbox-order{padding:13px 14px!important}
+  .back-cover{padding:36px 22px!important;justify-content:center!important;gap:24px!important;min-height:100vh!important;height:auto!important}
+  .bc-wordmark{font-size:46px!important;letter-spacing:0.18em!important}
+  .bc-tagline{font-size:10px!important;letter-spacing:0.15em!important}
+  .bc-address{font-size:8px!important}
+}
+`:'';
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}
-${dynamicPrintCSS}</style><script>
+${dynamicPrintCSS}
+${mobilePrintOverrides}</style><script>
 window.imgFallback=function(el,name){
   if(!el||el.dataset.fb)return;
   el.dataset.fb='1';
@@ -1646,18 +1724,20 @@ function App(){
       const params=new URLSearchParams();
       if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
       if(clientName) params.set('client',clientName);
+      if(view==='proposal') params.set('view','proposal');
       const qs=params.toString();
       const newUrl=window.location.pathname+(qs?'?'+qs:'');
       window.history.replaceState(null,'',newUrl);
     }catch(e){/* silently fail on in-app browsers */}
-  },[selected,clientName]);
+  },[selected,clientName,view]);
 
   // ── Copy shareable link ──
-  const copyShareLink=()=>{
+  const copyShareLink=(includeView)=>{
     try{
       const params=new URLSearchParams();
       if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
       if(clientName) params.set('client',clientName);
+      if(includeView==='proposal') params.set('view','proposal');
       const url=window.location.origin+window.location.pathname+'?'+params.toString();
       if(navigator.clipboard&&navigator.clipboard.writeText){
         navigator.clipboard.writeText(url).then(()=>{
@@ -1689,6 +1769,24 @@ function App(){
     return ()=>document.removeEventListener('keydown',handler);
   },[]);
 
+  // ── Auto-generate proposal HTML when view is 'proposal' and no HTML yet ──
+  useEffect(()=>{
+    if(view==='proposal'&&!proposalHTML&&selected.size>0){
+      try{
+        const items=PRODUCTS.filter(p=>selected.has(p.id));
+        if(items.length){
+          const html=buildProposalHTML(items,clientName,"");
+          setProposalHTML(html);
+        }else{
+          setView('catalog');
+        }
+      }catch(e){
+        console.error('Auto-generate proposal failed:',e);
+        setView('catalog');
+      }
+    }
+  },[view,proposalHTML,selected,clientName]);
+
   const openModal=()=>{setShowModal(true);setTimeout(()=>setModalOpen(true),10)};
   const closeModal=()=>{setModalOpen(false);setTimeout(()=>setShowModal(false),280)};
 
@@ -1715,7 +1813,13 @@ function App(){
     else setSelected(new Set(PRODUCTS.map(p=>p.id)));
   };
 
-  const [view,setView]=useState("catalog");
+  const [view,setView]=useState(()=>{
+    try{
+      const params=new URLSearchParams(window.location.search);
+      if(params.get('view')==='proposal'&&params.get('p')) return 'proposal';
+    }catch(e){}
+    return 'catalog';
+  });
   const [proposalHTML,setProposalHTML]=useState("");
 
   const handleBuild=()=>{
@@ -1766,15 +1870,27 @@ function App(){
             textTransform:"uppercase",fontFamily:"'Montserrat',sans-serif"}}>
             {selectedProducts.length} products{clientName?" · "+clientName:""}
           </span>
-          <button onClick={()=>{
-            const f=document.getElementById("prop-frame");
-            if(f&&f.contentWindow)f.contentWindow.print();
-          }} style={{
-            cursor:"pointer",background:TEAL,border:"none",borderRadius:6,
-            padding:"8px 20px",color:"#fff",fontSize:11,fontWeight:700,
-            letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
-            Save PDF ↓
-          </button>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={()=>copyShareLink('proposal')} style={{
+              cursor:"pointer",
+              background:linkCopied?"rgba(46,180,175,0.2)":"rgba(255,255,255,0.08)",
+              border:linkCopied?"1px solid rgba(46,180,175,0.5)":"1px solid rgba(255,255,255,0.15)",
+              borderRadius:6,padding:"8px 16px",
+              color:linkCopied?TEAL:"rgba(255,255,255,0.85)",
+              fontSize:11,fontWeight:600,letterSpacing:1,
+              fontFamily:"'Montserrat',sans-serif",transition:"all 0.2s"}}>
+              {linkCopied?"\u2713 Link Copied":"Share Link \u2197"}
+            </button>
+            <button onClick={()=>{
+              const f=document.getElementById("prop-frame");
+              if(f&&f.contentWindow)f.contentWindow.print();
+            }} style={{
+              cursor:"pointer",background:TEAL,border:"none",borderRadius:6,
+              padding:"8px 20px",color:"#fff",fontSize:11,fontWeight:700,
+              letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
+              Save PDF \u2193
+            </button>
+          </div>
         </div>
         <iframe id="prop-frame" srcDoc={proposalHTML}
           style={{flex:1,width:"100%",border:"none",display:"block"}}
