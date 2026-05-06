@@ -1722,7 +1722,7 @@ function App(){
   useEffect(()=>{
     try{
       const params=new URLSearchParams();
-      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(selected.size>0&&selected.size<=100) params.set('p',[...selected].join(','));
       if(clientName) params.set('client',clientName);
       if(view==='proposal') params.set('view','proposal');
       const qs=params.toString();
@@ -1735,7 +1735,7 @@ function App(){
   const copyShareLink=(includeView)=>{
     try{
       const params=new URLSearchParams();
-      if(selected.size>0&&selected.size<=40) params.set('p',[...selected].join(','));
+      if(selected.size>0&&selected.size<=100) params.set('p',[...selected].join(','));
       if(clientName) params.set('client',clientName);
       if(includeView==='proposal') params.set('view','proposal');
       const url=window.location.origin+window.location.pathname+'?'+params.toString();
