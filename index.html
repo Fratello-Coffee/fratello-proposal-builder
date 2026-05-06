@@ -107,22 +107,23 @@ const TEAL="#2eb4af";
 const CAT_CLR={"Espresso":"#1A1A1A","Single Origin":"#2D5016","Organic":"#3A7D44","Blends":"#4A4A4A","Nespresso":"#1B1B2F","Tea":"#5B3427","Syrups & Sauces":"#006D77","Specialty Drink Mixes":"#4A2060","Milk Alternatives":"#1B4F72"};
 const CAT_ORDER=["Espresso","Single Origin","Organic","Blends","Nespresso","Tea","Syrups & Sauces","Specialty Drink Mixes","Milk Alternatives"];
 
-const FRATELLO_YEARS=new Date().getFullYear()-1973;
+const COFFEE_YEARS=new Date().getFullYear()-1974;
+const ROASTING_YEARS=new Date().getFullYear()-1985;
 const CAT_META={
-  "Espresso":{eyebrow:"Top Selling Products",title:"The Godfather",italic:"Espresso",body:"Our flagship espresso blend - refined over five decades into an icon. Thick caramel, milk chocolate, and a lingering warmth that makes every cup unmistakably Fratello.",accent:"Godfather",bg:`https://lh3.googleusercontent.com/d/18T_6MuO5znCobqGnvPOYYD4Ld9-t4AIY`,bgPos:"center 40%",heroId:"B1610"},
+  "Espresso":{eyebrow:"Top Selling Products",title:"The Godfather",italic:"Espresso",body:"Our flagship espresso blend - refined over five decades into an icon. Thick caramel, milk chocolate, and a lingering warmth that makes every cup unmistakably Fratello.",accent:"Godfather",bg:`https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Fratello_bags-11_1_3.jpg?v=1778021396`,bgPos:"center 40%",heroId:"B1610"},
   "Single Origin":{eyebrow:"Origin Series",title:"Direct Trade &amp;",italic:"Single Origin",body:"Built on real relationships. Over 90% of our coffees are sourced directly from farmers we know by name - from the highlands of Colombia to the mountains of Myanmar.",accent:"Origin",bg:`https://lh3.googleusercontent.com/d/176DdGXH7yA9Q4oaLtPe6FIcZ02SVECoC`,bgPos:"center center",heroId:null},
   "Organic":{eyebrow:"Certified Organic",title:"Organic",italic:"Coffee",
     body:"Grown without compromise. Certified organic farming practices paired with the same exacting standards of flavor and freshness that define every Fratello roast.",
     accent:"Organic",bg:`https://lh3.googleusercontent.com/d/1feN-ORMUgKe-e8F3OYzzErOR5QX1Ggkd`,bgPos:"center 40%",heroId:null},
   "Blends":{eyebrow:"Bold &amp; Satisfying",title:"Medium &amp;",italic:"Dark Roast",body:"Full-bodied, rich, and deeply satisfying. Our blends speak to those who want substance in every cup - chocolate, caramel, smoke, and character.",accent:"Dark",bg:`https://lh3.googleusercontent.com/d/1Usueh9eFvDMJpASkPh67K6EXdO0YHben`,bgPos:"center center",heroId:null},
   "Nespresso":{eyebrow:"Nespresso Compatible",title:"Original",italic:"Capsules",body:"All the depth and character of Fratello - now in 100% recyclable aluminum capsules compatible with Nespresso Original Line machines.",accent:"Capsules",bg:`https://lh3.googleusercontent.com/d/1OUUnSuetv2G6RkuRa962Vh_yjl_C0Shm`,bgPos:"center center",heroId:null},
-  "Tea":{eyebrow:"Idle Tea Collection",title:"Tea &amp;",italic:"Beverages",body:"A world beyond coffee. Curated loose leaf blends, alternative lattes, and artisanal chai concentrates - a complete beverage offering for every guest.",accent:"Idle Tea",bg:`https://lh3.googleusercontent.com/d/1KShEQ4rcEDHJgCr9OAvQV29ifCiqspGG`,bgPos:"center center",heroId:null},
+  "Tea":{eyebrow:"Idle Tea Collection",title:"Tea &amp;",italic:"Beverages",body:"A world beyond coffee. Curated loose leaf blends, alternative lattes, and artisanal chai concentrates - a complete beverage offering for every guest.",accent:"Idle Tea",bg:`https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Jasmine_tea_1500x_284c00ba-34cb-4412-af2e-cf5bd7df2be3.webp?v=1778021396`,bgPos:"center center",heroId:null},
   "Syrups & Sauces":{eyebrow:"Premium Flavours",title:"Syrups &amp;",italic:"Sauces",
     body:"Premium flavour enhancers for every cafe program - from 1883's full syrup range to artisan chocolate sauces.",
     accent:"Syrups",bg:`https://lh3.googleusercontent.com/d/1UQ5jp1DVcyRkUWCg9g9LLm1P_zDXNsPV`,bgPos:"center 60%",heroId:null},
   "Specialty Drink Mixes":{eyebrow:"Specialty Beverages &amp; Functional Drinks",title:"Specialty",italic:"Drink Mixes",
     body:"Beyond coffee. Functional mushroom blends, fruit refreshers, and nutrition drinks to complete your beverage program.",
-    accent:"Specialty",bg:`https://lh3.googleusercontent.com/d/1p0AxinD0MY1YVsonBlcm8OkFTZzp3rnO`,bgPos:"center center",heroId:null},
+    accent:"Specialty",bg:`https://cdn.shopify.com/s/files/1/0792/2666/7327/files/smartfruit-brand-hero.png?v=1778021397`,bgPos:"center center",heroId:null},
   "Milk Alternatives":{eyebrow:"Barista Milk Alternatives",title:"Milk",italic:"Alternatives",
     body:"Barista-grade plant-based milks that steam and foam flawlessly. Non-GMO oat and almond options for every cafe program.",
     accent:"Barista",bg:`https://lh3.googleusercontent.com/d/1rLGrnxrqMjLW7NVg_qXXNJU0d69oCk2x`,bgPos:"center center",heroId:null},
@@ -210,7 +211,7 @@ const PRODUCTS=[
     origin:"Medium Organic Blend", vibe:"Clean + Balanced",
     desc:"A clean and balanced coffee, with notes of caramel and hazelnut.",
     roast:3, sizes:["12 oz","2 lb","42×2.5 oz"],
-    img:"https://lh3.googleusercontent.com/d/1napxZlcVzbk0Fx2ceT1JztdZ1F8_HTrV" },
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Habitat-Espresso.png?v=1778021397" },
 
 
   // ══ BLENDS — 12 products ═══════════════════════════════════
@@ -219,7 +220,7 @@ const PRODUCTS=[
     origin:"Central America & Africa", vibe:"Soft + Smooth",
     desc:"Soft and smooth with notes of apple acidity and brown sugar.",
     roast:2, sizes:["12 oz","5 lb","42×2.5 oz"],
-    img:"https://lh3.googleusercontent.com/d/19O9VCag99dwwX9-RM78TIhPLhrqW7Euw" },
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Acid-Jazz.png?v=1778021397" },
 
   { id:"B1210", cat:"Blends", comingSoon:false,
     eyebrow:"Blend · Medium", name:"Bull Rider",
@@ -380,17 +381,17 @@ const PRODUCTS=[
     img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Latte-Golden-Turmeric_67b0d73f-7620-4d7c-90d6-3bde588e070e.webp?v=1775858683" },
 
   { id:"TEA1150", cat:"Tea", comingSoon:false,
-    eyebrow:"Roasted Green Tea · Matcha Blend", name:"Houjicha Matcha",
+    eyebrow:"Alternative Latte · Roasted Green Tea + Matcha", name:"Houjicha Matcha",
     origin:"8 oz Bag", vibe:"Toasty + Nutty",
-    desc:"Roasted green tea blended with matcha. Warm and toasty with hints of caramel and earthiness. Low caffeine, smooth and comforting.",
+    desc:"Roasted green tea blended with matcha. Warm and toasty with hints of caramel and earthiness. Low caffeine, smooth and comforting. Available in bulk only.",
     roast:0, sizes:["8 oz bag"],
     img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Unknown.webp?v=1775858683" },
 
   { id:"DRI1010", cat:"Tea", comingSoon:false,
     eyebrow:"Signature Concentrate · 100% Organic", name:"Idle Spiced Chai",
-    origin:"1 L Bottle", vibe:"Cardamom + Spice",
-    desc:"Our 100% organic chai honors the traditions from the Karakorum region, delivering an authentic, cardamom-forward taste. Vegan, gluten-free, and preservative-free.",
-    roast:0, sizes:["1 L","Case of 12"],
+    origin:"Sold by the Case (12 × 1 L)", vibe:"Cardamom + Spice",
+    desc:"Our 100% organic chai honors the traditions from the Karakorum region, delivering an authentic, cardamom-forward taste. Vegan, gluten-free, and preservative-free. Sold by the case only (12 bottles × 1 L).",
+    roast:0, sizes:["Case of 12 × 1 L"],
     img:"https://www.fratellocoffee.com/cdn/shop/files/IdleChaiConcentrate_550x.png?v=1698713424" },
 
   { id:"TEA1060", cat:"Tea", comingSoon:false,
@@ -422,9 +423,9 @@ const PRODUCTS=[
     img:"https://www.fratellocoffee.com/cdn/shop/files/Idle_Tea_Orange_Cream_Oolong_Tea_Bag_550x.png?v=1727212523" },
 
   { id:"TEA1130", cat:"Tea", comingSoon:false,
-    eyebrow:"Organic Matcha · Green Tea Powder", name:"Organic Matcha",
+    eyebrow:"Alternative Latte · Organic Matcha Powder", name:"Organic Matcha",
     origin:"8 oz Bag", vibe:"Fresh + Grassy",
-    desc:"Vibrant organic matcha green tea powder. Subtly grassy and sweet, rich in antioxidants.",
+    desc:"Vibrant organic matcha green tea powder. Subtly grassy and sweet, rich in antioxidants. Available in bulk only.",
     roast:0, sizes:["8 oz bag"],
     img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Latte-Matcha_34f9f0b1-eb24-474e-958d-7194cce7dfda.webp?v=1775858683" },
 
@@ -440,7 +441,7 @@ const PRODUCTS=[
     origin:"8 oz Loose Leaf", vibe:"Fruity + Caffeine-Free",
     desc:"Caffeine-free rooibos with fruity raspberry and hibiscus notes. From South Africa near the Cederberg mountains.",
     roast:0, sizes:["8 oz bag"],
-    img:"https://lh3.googleusercontent.com/d/1ow_O6f39SZ65luELGFHlKyTub7wRH4gU" },
+    img:"https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Herbal-Rooibos_1.png?v=1778021396" },
 
 
   // ══ SYRUPS & SAUCES — 23 products ═══════════════════════════════════
@@ -653,16 +654,16 @@ const PRODUCTS=[
   // ══ MILK ALTERNATIVES — 2 products ═══════════════════════════════════
   { id:"MLK1020", cat:"Milk Alternatives", comingSoon:false,
     eyebrow:"Barista Almond Beverage · Pacific Foods", name:"Pacific Foods Barista Almond",
-    origin:"1 L", vibe:"Light + Nutty",
-    desc:"Non-GMO barista almond beverage. Froths and steams flawlessly for café-quality drinks.",
-    roast:0, sizes:["1 L"],
+    origin:"Sold by the Case (12 × 1 L)", vibe:"Light + Nutty",
+    desc:"Non-GMO barista almond beverage. Froths and steams flawlessly for café-quality drinks. Sold by the case only (12 cartons × 1 L).",
+    roast:0, sizes:["Case of 12 × 1 L"],
     img:"https://www.fratellocoffee.com/cdn/shop/files/0f0cf200bf558db8eece3eef17023a04_533x.jpg?v=1758908562" },
 
   { id:"MLK1010", cat:"Milk Alternatives", comingSoon:false,
     eyebrow:"Barista Oat Milk · Canadian", name:"Two Bears Barista Oat Milk",
-    origin:"1 L", vibe:"Creamy + Neutral",
-    desc:"Made with naturally sweet Canadian oats. Steams beautifully for lattes and cappuccinos.",
-    roast:0, sizes:["1 L"],
+    origin:"Sold by the Case (6 × 1 L)", vibe:"Creamy + Neutral",
+    desc:"Made with naturally sweet Canadian oats. Steams beautifully for lattes and cappuccinos. Sold by the case only (6 cartons × 1 L).",
+    roast:0, sizes:["Case of 6 × 1 L"],
     img:"https://www.fratellocoffee.com/cdn/shop/files/OATbaristafriendly_1024x1024_02941419-a1d1-44ef-8685-06f983c47a28_533x.png?v=1705020202" },
 
 ];
@@ -678,7 +679,7 @@ body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webki
 .page-foot span{font-size:9px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--text-lt)}
 .page-foot span:last-child{color:var(--teal)}
 .cover{background:var(--dark);height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:48px 72px;page-break-after:always}
-.cover-wm{position:absolute;inset:0;background-image:url('https://lh3.googleusercontent.com/d/1iHYl_vSw_POQfMsDwHNm7y2k_esLpca9');background-size:cover;background-position:center;opacity:0.30;pointer-events:none;z-index:0}
+.cover-wm{position:absolute;inset:0;background-image:url('https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Story_Line_2042_2.jpg?v=1778021396');background-size:cover;background-position:center;opacity:0.30;pointer-events:none;z-index:0}
 .cover-top{display:flex;justify-content:space-between;position:relative;z-index:2}
 .cover-top-l{font-size:9px;font-weight:600;letter-spacing:5px;color:var(--teal);text-transform:uppercase}
 .cover-top-r{font-size:9px;font-weight:400;letter-spacing:4px;color:rgba(255,255,255,0.52);text-transform:uppercase}
@@ -767,6 +768,7 @@ body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webki
 .pc-size-pill{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;border:1px solid var(--cream-deep);color:var(--text-lt)}
 .section-rule{border:none;height:1px;background:var(--cream-deep);margin:48px 0}
 .tea-page{background:var(--cream);padding:40px 56px 24px;overflow:visible}
+.tea-note{text-align:center;margin-top:28px;padding:14px 40px 0;font-size:10px;font-style:italic;color:var(--text-lt);letter-spacing:0.4px;line-height:1.6;border-top:1px solid rgba(135,127,106,0.18)}
 .t-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:24px 16px}
 .tc{display:flex;flex-direction:column;align-items:center;text-align:center}
 .tc-img{width:90px;height:110px;object-fit:contain;background:#fff;border-radius:10px;padding:5px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px}
@@ -775,6 +777,8 @@ body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webki
 .tc-desc{font-size:13.5px;font-weight:300;color:var(--text-lt);line-height:1.55;max-width:200px}
 .tc-sizes{display:flex;gap:4px;justify-content:center;margin-top:8px}
 .tc-size-pill{font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:3px;border:1px solid var(--cream-deep);color:var(--text-lt)}
+.tc-formats{font-size:9px;color:var(--accent);margin-top:6px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;text-align:center}
+.tc-formats .sep{color:var(--text-lt);margin:0 6px;font-weight:400;opacity:0.7}
 .back-cover{background:var(--dark);min-height:50vh;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:64px 72px;page-break-before:always}
 .bc-wm{position:absolute;inset:0;background-image:url('https://fratello.odoo.com/web/image/2178-8acfb16c/fratello-bg_1920x.webp');background-size:cover;background-position:center;opacity:0.07;pointer-events:none;z-index:0}
 .bc-main{position:relative;z-index:2;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
@@ -1076,7 +1080,7 @@ function pcCardHTML(p,isNespresso) {
     :`<img class="${imgClass}" src="${p.img}" alt="${p.name}"
         style="cursor:pointer;"
         onclick="openLB('${p.img}','${(p.eyebrow||'').replace(/'/g,"\'")}','${(p.name||'').replace(/'/g,"\'")}','${(p.origin||'').replace(/'/g,"\'")}','${(p.vibe||'').replace(/'/g,"\'")}','${(p.desc||'').replace(/'/g,"\'")}',${p.roast||0},${sizesArr})"
-        onerror="this.style.display='none';var cs=document.createElement('div');cs.className='pc-coming-soon';cs.innerHTML='<span class=pc-cs-badge>Coming Soon</span>';this.parentElement.replaceWith(cs);">`;
+        onerror="window.imgFallback&&window.imgFallback(this,'${(p.name||'').replace(/'/g,"\\'")}')">`;
   return `<div class="pc">
   ${imgHTML}
   <span class="eyebrow pc-eye">${p.eyebrow}</span>
@@ -1091,12 +1095,19 @@ function pcCardHTML(p,isNespresso) {
 
 // ── TC CARD (Tea style) ───────────────────────────────────────────────────────
 function tcCardHTML(p) {
+  const eyeLow=(p.eyebrow||'').toLowerCase();
+  const isLooseTea=!eyeLow.includes('latte')&&!eyeLow.includes('concentrate');
+  const isPowder=eyeLow.includes('latte');
+  let formats='';
+  if(isLooseTea)formats=`<div class="tc-formats">Loose Leaf<span class="sep">·</span>Tea Bags</div>`;
+  else if(isPowder)formats=`<div class="tc-formats">Powder</div>`;
   return `<div class="tc">
-  <img class="tc-img" src="${p.img}" alt="${p.name}" onerror="this.style.visibility='hidden'">
+  <img class="tc-img" src="${p.img}" alt="${p.name}" onerror="window.imgFallback&&window.imgFallback(this,'${(p.name||'').replace(/'/g,"\\'")}')">
   <div class="tc-name">${p.name}</div>
   <div class="tc-origin">${p.eyebrow}</div>
   <div class="tc-desc">${p.vibe} — ${p.desc}</div>
   <div class="tc-sizes">${p.sizes.map(s=>`<span class="tc-size-pill">${s}</span>`).join('')}</div>
+  ${formats}
 </div>`;
 }
 
@@ -1122,7 +1133,7 @@ function heroHTML(p) {
   <div class="pc-hero-img-wrap">
     <img src="${p.img}" alt="${p.name}" style="cursor:pointer;"
       onclick="openLB('${p.img}','${(p.eyebrow||'').replace(/'/g,"\'")}','${p.name}','${p.origin}','${p.vibe}','${p.desc}',${p.roast||0},${JSON.stringify(p.sizes||[])})"
-      onerror="this.style.display='none'">
+      onerror="window.imgFallback&&window.imgFallback(this,'${(p.name||'').replace(/'/g,"\\'")}')">
   </div>
   <div class="pc-hero-body">
     <span class="eyebrow">${p.eyebrow}</span>
@@ -1151,29 +1162,32 @@ function chapHTML(cat,meta,colNum) {
 }
 
 // ── PRODUCT PAGE ──────────────────────────────────────────────────────────────
-function productPageHTML(cat,meta,items,colNum,colLabel) {
+function productPageHTML(cat,meta,items,colNum,colLabel,isLastBatch=true) {
   const isTea=cat==='Tea';
   const isNespresso=cat==='Nespresso';
   const pageTag=isTea?'tea-page':'prod-page';
   // Landscape: max items per page before overflow
   const maxPerPage=isTea?10:(isNespresso?4:8);
+  const TEA_NOTE=`<div class="tea-note">All Idle Teas available in loose leaf bags or compostable tea satchels. Matchas and concentrates available in bulk only.</div>`;
 
   // Split into pages if needed
   if(items.length>maxPerPage) {
     const firstBatch=items.slice(0,maxPerPage);
     const rest=items.slice(maxPerPage);
-    const firstPage=productPageHTML(cat,meta,firstBatch,colNum,colLabel);
+    const firstPage=productPageHTML(cat,meta,firstBatch,colNum,colLabel,false);
     // Build overflow pages
     let overflowPages='';
     let i=0;
     while(i<rest.length) {
       const batch=rest.slice(i,i+maxPerPage);
+      const isLastOverflow=(i+maxPerPage>=rest.length);
       const grid=isTea?`<div class="t-grid">${batch.map(tcCardHTML).join('')}</div>`:wrapGrid(batch,false,isNespresso);
+      const noteHere=(isTea&&isLastOverflow)?TEA_NOTE:'';
       overflowPages+=`<section class="prod-overflow">
   <div class="prod-hdr">
     <div class="prod-hdr-title">${colLabel} <span style="font-size:14px;font-weight:400;color:var(--text-lt)">continued</span></div>
     <span class="prod-hdr-num">${colNum} / Collection</span>
-  </div>${grid}<div class="page-footer"><span class="footer-word">FRATELLOCOFFEE.COM</span></div></section>`;
+  </div>${grid}${noteHere}<div class="page-footer"><span class="footer-word">FRATELLOCOFFEE.COM</span></div></section>`;
       i+=maxPerPage;
     }
     return firstPage+overflowPages;
@@ -1192,6 +1206,7 @@ function productPageHTML(cat,meta,items,colNum,colLabel) {
   } else {
     content=wrapGrid(items,isTea,isNespresso);
   }
+  if(isTea&&isLastBatch) content+=TEA_NOTE;
 
   return `<section class="${pageTag}">
   <div class="prod-hdr">
@@ -1220,7 +1235,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   const cover=`<section class="cover">
   <div class="cover-wm"></div>
   <div class="cover-top">
-    <span class="cover-top-l">Est. 1973 · Calgary, Alberta</span>
+    <span class="cover-top-l">Est. 1974 · Calgary, Alberta</span>
     <span class="cover-top-r">fratellocoffee.com</span>
   </div>
   <div class="cover-main">
@@ -1229,7 +1244,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
     <div class="cover-sub">Product Selection</div>
     ${clientName?`<div class="cover-for">Prepared for <strong>${clientName}</strong></div>`:''}
     <div class="cover-stats">
-      <div class="cstat"><div class="cstat-n">${FRATELLO_YEARS}</div><div class="cstat-l">Years of Excellence</div></div>
+      <div class="cstat"><div class="cstat-n">${COFFEE_YEARS}</div><div class="cstat-l">Years of Excellence</div></div>
       <div class="cstat"><div class="cstat-n">90%+</div><div class="cstat-l">Direct Trade</div></div>
       <div class="cstat"><div class="cstat-n">${selectedProducts.length}</div><div class="cstat-l">Products Selected</div></div>
     </div>
@@ -1266,9 +1281,9 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
     </div>
   </div>
   <div class="about-right">
-    <img src="https://lh3.googleusercontent.com/d/1cQexyyYkMkm7k00hLbbScYws9Z81sHkM" alt="Fratello Roastery" onerror="this.style.display='none'">
+    <img src="https://cdn.shopify.com/s/files/1/0792/2666/7327/files/Unknown-1_1.jpg?v=1778021396" alt="Fratello Roastery" onerror="window.imgFallback&&window.imgFallback(this,'Fratello Roastery')">
     <div class="about-photo-stat-overlay">
-      <div style="font-size:48px;font-weight:900;color:#fff;line-height:1;">${FRATELLO_YEARS}+</div>
+      <div style="font-size:48px;font-weight:900;color:#fff;line-height:1;">${ROASTING_YEARS}+</div>
       <div style="font-size:8px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#2eb4af;margin-top:4px;">Years Roasting in Calgary</div>
     </div>
   </div>
@@ -1405,13 +1420,13 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
           <div class="contact-name">Joel<br>May</div>
           <div class="contact-role">Key Account Manager</div>
           <a href="tel:+14036133601" class="contact-phone">403.613.3601</a>
-          <a href="mailto:joel@fratellocoffee.com" class="contact-email">joel@fratellocoffee.com</a>
+          <a href="mailto:joel.may@fratellocoffee.com" class="contact-email">joel.may@fratellocoffee.com</a>
         </div>
         <div class="contact-card">
           <div class="contact-name">D&rsquo;arcy<br>Watsham</div>
           <div class="contact-role">Sales</div>
-          <span class="contact-phone">TBD</span>
-          <a href="mailto:darcy@fratellocoffee.com" class="contact-email">darcy@fratellocoffee.com</a>
+          <a href="tel:+14032874590" class="contact-phone">(403) 287-4590</a>
+          <a href="mailto:darcy.watsham@fratellocoffee.com" class="contact-email">darcy.watsham@fratellocoffee.com</a>
         </div>
       </div>
       <div class="cbox-learn"><div class="cbox-learn-eye">Learn More</div><div class="cbox-learn-txt">Watch a short documentary about our story:</div><a href="https://fratellocoffee.com/pages/our-story" target="_blank" class="cbox-learn-link" style="text-decoration:none;">fratellocoffee.com/pages/our-story &rarr;</a></div>
@@ -1436,7 +1451,26 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   </div>
 </section>`;
 
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}</style></head><body>${cover}${aboutPage}${sections}${offeringDark}${offeringLight}${orderPage}${thankYou}${backCover}
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Fratello Coffee — ${clientName?clientName+' — ':''}Product Selection</title><style>${PROPOSAL_CSS}</style><script>
+window.imgFallback=function(el,name){
+  if(!el||el.dataset.fb)return;
+  el.dataset.fb='1';
+  el.removeAttribute('onerror');
+  var safeName=String(name||'Product').replace(/[<>&"']/g,'').slice(0,28);
+  var line1=safeName,line2='';
+  if(safeName.length>16){var sp=safeName.lastIndexOf(' ',16);if(sp>4){line1=safeName.slice(0,sp);line2='<tspan x="100" dy="18">'+safeName.slice(sp+1)+'</tspan>';}}
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">'+
+    '<rect width="200" height="200" fill="#F6F1E9"/>'+
+    '<rect x="60" y="62" width="80" height="76" rx="4" fill="none" stroke="#C8B998" stroke-width="1.5" stroke-dasharray="3 3"/>'+
+    '<circle cx="100" cy="86" r="6" fill="#C8B998"/>'+
+    '<path d="M76 122 L92 104 L106 116 L124 96 L138 122 Z" fill="#C8B998" opacity="0.55"/>'+
+    '<text x="100" y="160" font-family="Cormorant Garamond,serif" font-size="11" font-style="italic" text-anchor="middle" fill="#877F6A">'+line1+line2+'</text>'+
+    '<text x="100" y="186" font-family="Montserrat,sans-serif" font-size="6" letter-spacing="2" text-anchor="middle" fill="#A89F86">FRATELLO</text>'+
+    '</svg>';
+  try{el.src='data:image/svg+xml;base64,'+btoa(svg);}catch(e){el.style.visibility='hidden';}
+  el.style.background='#F6F1E9';
+};
+<\/script></head><body>${cover}${aboutPage}${sections}${offeringDark}${offeringLight}${orderPage}${thankYou}${backCover}
 <div class="lb-overlay" id="lb" onclick="if(event.target===this)closeLB()">
   <div class="lb-box">
     <button class="lb-close" onclick="closeLB()">&#10005;</button>
@@ -1454,7 +1488,10 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
 </div>
 <script>
 function openLB(img,eye,name,origin,vibe,desc,roast,sizes){
-  document.getElementById('lb-img').src=img;
+  var lbImg=document.getElementById('lb-img');
+  delete lbImg.dataset.fb;
+  lbImg.onerror=function(){window.imgFallback(this,name);};
+  lbImg.src=img;
   document.getElementById('lb-eye').textContent=eye;
   document.getElementById('lb-name').textContent=name;
   document.getElementById('lb-origin').textContent=origin;
@@ -1517,8 +1554,12 @@ const ProductCard=memo(function ProductCard({p,sel,onToggle,animDelay}){
           <img src={p.img} alt={p.name}
             style={{width:"90%",height:"90%",objectFit:"contain",objectPosition:"center"}}
             onError={e=>{
-              e.target.parentElement.style.background="#1e1e1e";
-              e.target.style.display="none";
+              const t=e.target;
+              if(t.dataset.fb)return;
+              t.dataset.fb='1';
+              const safe=String(p.name||'Product').replace(/[<>&"']/g,'').slice(0,28);
+              const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet"><rect width="200" height="200" fill="#f5f0e8"/><rect x="60" y="62" width="80" height="76" rx="4" fill="none" stroke="#C8B998" stroke-width="1.5" stroke-dasharray="3 3"/><circle cx="100" cy="86" r="6" fill="#C8B998"/><path d="M76 122 L92 104 L106 116 L124 96 L138 122 Z" fill="#C8B998" opacity="0.55"/><text x="100" y="160" font-family="Cormorant Garamond,serif" font-size="11" font-style="italic" text-anchor="middle" fill="#877F6A">'+safe+'</text><text x="100" y="186" font-family="Montserrat,sans-serif" font-size="6" letter-spacing="2" text-anchor="middle" fill="#A89F86">FRATELLO</text></svg>';
+              t.src='data:image/svg+xml;base64,'+btoa(svg);
             }}/>
         </div>
         <div className="cat-badge" style={{position:"absolute",top:6,left:6,background:catInfo,padding:"2px 7px",borderRadius:3,
