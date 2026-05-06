@@ -1909,7 +1909,7 @@ function App(){
       </div>
       <div className="hdr-btns" style={{display:"flex",gap:8,alignItems:"center"}}>
         {selected.size>0&&<button onClick={()=>setSelected(new Set())} style={{...btn,background:"rgba(255,255,255,0.06)",color:"rgba(255,255,255,0.4)"}}>Clear</button>}
-        {selected.size>0&&<button onClick={copyShareLink} style={{...btn,background:linkCopied?"rgba(46,180,175,0.2)":"rgba(255,255,255,0.06)",color:linkCopied?TEAL:"rgba(255,255,255,0.4)",border:linkCopied?"1px solid rgba(46,180,175,0.4)":"1px solid transparent",transition:"all 0.2s"}}>
+        {selected.size>0&&<button onClick={()=>copyShareLink('proposal')} style={{...btn,background:linkCopied?"rgba(46,180,175,0.2)":"rgba(255,255,255,0.06)",color:linkCopied?TEAL:"rgba(255,255,255,0.4)",border:linkCopied?"1px solid rgba(46,180,175,0.4)":"1px solid transparent",transition:"all 0.2s"}}>
           {linkCopied?"\u2713 Link Copied":"Copy Link"}
         </button>}
         <button onClick={()=>selected.size>0&&openModal()} style={{...btn,background:selected.size>0?TEAL:"rgba(255,255,255,0.07)",color:selected.size>0?"#fff":"rgba(255,255,255,0.2)",cursor:selected.size>0?"pointer":"default",padding:"8px 18px"}}>
