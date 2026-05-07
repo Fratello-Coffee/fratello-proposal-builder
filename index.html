@@ -829,9 +829,12 @@ body::after{display:none!important}
 .about-wrap,.about-page{page-break-after:avoid}
 .chap{page-break-before:always;page-break-after:always;min-height:100vh;height:100vh;display:flex;align-items:center}
 .prod-page,.tea-page{page-break-before:avoid;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;break-inside:avoid;page-break-inside:avoid}
+.prod-page>.pg-1,.prod-page>.pg-2,.prod-page>.pg-3,.prod-page>.pg-4,.prod-page>.pc-hero,.tea-page>.t-grid{flex:1;align-content:center}
 .prod-overflow{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;break-inside:avoid;page-break-inside:avoid}
+.prod-overflow>.pg-1,.prod-overflow>.pg-2,.prod-overflow>.pg-3,.prod-overflow>.pg-4,.prod-overflow>.t-grid,.prod-overflow>.pc-hero{flex:1;align-content:center}
 .tbl-dark,.tbl-light{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
 .tbl-dark>.tbl-body,.tbl-light>.tbl-body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.tbl-dark>.tbl-body-2col,.tbl-light>.tbl-body-2col{flex:1;align-content:center}
 .order-page{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
 .order-page>.order-grid{flex:1;align-content:center}
 .ty-page{page-break-before:always;page-break-after:avoid;min-height:100vh;break-inside:avoid;page-break-inside:avoid}
@@ -1218,19 +1221,22 @@ function chapHTML(cat,meta,colNum) {
 }
 
 // ── PRODUCT PAGE ──────────────────────────────────────────────────────────────
-function productPageHTML(cat,meta,items,colNum,colLabel,isLastBatch=true) {
+function productPageHTML(cat,meta,items,colNum,colLabel,isLastBatch=true,isMobile=false) {
   const isTea=cat==='Tea';
   const isNespresso=cat==='Nespresso';
   const pageTag=isTea?'tea-page':'prod-page';
-  // Landscape: max items per page before overflow
-  const maxPerPage=isTea?10:(isNespresso?4:8);
+  // Mobile (Letter portrait): cards are ~250px tall, only ~3-4 rows fit per page.
+  // Desktop (A4 landscape): cards are smaller relative to page, more fit.
+  const maxPerPage=isMobile
+    ? (isTea?6:(isNespresso?4:6))
+    : (isTea?10:(isNespresso?4:8));
   const TEA_NOTE=`<div class="tea-note">All Idle Teas available in loose leaf bags or compostable tea satchels. Matchas and concentrates available in bulk only.</div>`;
 
   // Split into pages if needed
   if(items.length>maxPerPage) {
     const firstBatch=items.slice(0,maxPerPage);
     const rest=items.slice(maxPerPage);
-    const firstPage=productPageHTML(cat,meta,firstBatch,colNum,colLabel,false);
+    const firstPage=productPageHTML(cat,meta,firstBatch,colNum,colLabel,false,isMobile);
     // Build overflow pages
     let overflowPages='';
     let i=0;
@@ -1277,6 +1283,9 @@ function productPageHTML(cat,meta,items,colNum,colLabel,isLastBatch=true) {
 // ── FULL PROPOSAL GENERATOR ───────────────────────────────────────────────────
 function buildProposalHTML(selectedProducts, clientName, repName) {
   const date=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'});
+  // Detect mobile viewport at proposal generation time so we can adjust
+  // maxPerPage in productPageHTML — Letter portrait fits fewer cards per page.
+  const isMobileViewport=typeof window!=='undefined'&&window.innerWidth<=768;
 
   // Group by category in canonical order
   const byCat={};
@@ -1319,7 +1328,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
     const meta=CAT_META[cat];
     const numStr=String(catNum).padStart(2,'0');
     const label=catLabels[cat]||cat;
-    return chapHTML(cat,meta,numStr)+productPageHTML(cat,meta,items,numStr,label);
+    return chapHTML(cat,meta,numStr)+productPageHTML(cat,meta,items,numStr,label,true,isMobileViewport);
   }).join('');
 
 
@@ -1507,14 +1516,6 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   </div>
 </section>`;
 
-  // Detect viewport at proposal generation time.
-  // Mobile (≤768px): A5 portrait (148×210mm). Standard size all browsers respect.
-  //   Page width 559 CSS px is < 768, so the @media (max-width:768px) rules in
-  //   PROPOSAL_CSS fire automatically during print rendering.
-  // Desktop (>768px): A4 landscape — full-size professional format.
-  // mobilePrintOverrides below forces critical mobile layout rules with !important
-  // so the PDF stays mobile-styled even if some print-rendering quirks exist.
-  const isMobileViewport=typeof window!=='undefined'&&window.innerWidth<=768;
   // Mobile browsers (iOS Safari, Chrome iOS) often ignore custom @page sizes and
   // apply default margins. Using size:auto + !important margin:0 is the most robust
   // combination — lets the browser pick its native page size but kills the white
@@ -1524,36 +1525,44 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
     : `@media print { @page { size: A4 landscape; margin: 0 !important } html, body { margin: 0 !important; padding: 0 !important } }`;
   const mobilePrintOverrides=isMobileViewport?`
 @media print {
+  .cover{min-height:265mm!important;height:265mm!important}
   .cover-stats{flex-direction:column!important;align-items:center!important;gap:16px!important;margin-top:28px!important}
   .cover-wordmark{font-size:54px!important;letter-spacing:0.20em!important}
   .cstat-n{font-size:36px!important}
-  .about-page{grid-template-columns:1fr!important;height:auto!important;min-height:auto!important}
-  .about-left{padding:30px 24px!important}
-  .about-headline{font-size:32px!important}
-  .about-right{min-height:240px!important}
+  .about-page{grid-template-columns:1fr!important;height:auto!important;min-height:265mm!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .about-left{padding:22px 18px!important}
+  .about-eyebrow{margin-bottom:10px!important}
+  .about-headline{font-size:26px!important;margin-bottom:12px!important}
+  .about-rule{margin:12px 0!important}
+  .about-pull{font-size:13px!important;margin-bottom:12px!important;padding-left:14px!important}
+  .about-body p{font-size:11px!important;line-height:1.55!important;margin-bottom:8px!important}
+  .about-right{min-height:200px!important;max-height:240px!important}
   .diff-bar{grid-template-columns:repeat(2,1fr)!important}
-  .diff-item{padding:16px 12px!important}
-  .chap{min-height:280px!important;max-height:none!important}
+  .diff-item{padding:12px 10px!important}
+  .diff-text{font-size:11px!important;line-height:1.4!important}
+  .chap{min-height:265mm!important;height:265mm!important;max-height:none!important}
   .chap-inner{padding:30px 24px!important;flex-direction:column!important}
   .chap-title{font-size:38px!important}
   .chap-body{font-size:13px!important;max-width:100%!important}
   .chap-accent{font-size:64px!important;right:14px!important;bottom:-8px!important}
-  .prod-page,.tea-page,.prod-overflow{padding:24px 18px 18px!important}
+  .prod-page,.tea-page,.prod-overflow{padding:24px 18px 18px!important;min-height:265mm!important}
   .prod-hdr{flex-direction:column!important;gap:4px!important;align-items:flex-start!important}
   .prod-hdr-title{font-size:18px!important}
   .pg-3,.pg-4{grid-template-columns:repeat(2,1fr)!important;gap:18px 12px!important}
   .pg-2{grid-template-columns:repeat(2,1fr)!important;gap:18px 12px!important;max-width:100%!important}
   .pg-1{padding:0!important}
   .pg-1 .pc{max-width:100%!important}
-  .pc{padding:10px 6px 12px!important}
-  .pc-img{width:100px!important;height:120px!important;border-radius:8px!important}
-  .pc-img.nespresso-img{width:110px!important;height:130px!important}
-  .pc-name{font-size:13px!important}
-  .pc-name.sm{font-size:11px!important}
-  .pc-origin{font-size:7px!important;letter-spacing:1.5px!important}
-  .pc-vibe{font-size:11px!important}
-  .pc-desc{font-size:10px!important;max-width:100%!important;line-height:1.5!important}
+  .pc{padding:6px 5px 8px!important}
+  .pc-img{width:78px!important;height:96px!important;border-radius:6px!important;margin-bottom:5px!important}
+  .pc-img.nespresso-img{width:84px!important;height:100px!important}
+  .pc-name{font-size:12px!important;margin-bottom:2px!important}
+  .pc-name.sm{font-size:10px!important}
+  .pc-origin{font-size:7px!important;letter-spacing:1.2px!important;margin-bottom:3px!important}
+  .pc-vibe{font-size:10px!important;margin-bottom:4px!important}
+  .pc-desc{font-size:9.5px!important;max-width:100%!important;line-height:1.42!important;margin-bottom:6px!important}
   .pc-eye{font-size:7px!important;letter-spacing:2px!important}
+  .pc-roast{margin-bottom:5px!important}
+  .size-pill{padding:2px 6px!important;font-size:8px!important}
   .pc-hero{grid-template-columns:1fr!important}
   .pc-hero-img-wrap{padding:20px 18px 0!important}
   .pc-hero-img-wrap img{width:180px!important}
@@ -1565,6 +1574,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   .tc-name{font-size:12px!important}
   .tc-desc{font-size:10px!important;max-width:100%!important}
   .tc-origin{font-size:7px!important;max-width:100%!important}
+  .tbl-dark,.tbl-light{min-height:265mm!important}
   .tbl-hdr,.tbl-hdr-light{padding:22px 18px 14px!important}
   .tbl-body{padding:16px 18px 24px!important}
   .tbl-body-2col{padding:16px 18px 24px!important;grid-template-columns:1fr!important;gap:24px!important}
@@ -1574,6 +1584,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   .tbl-foot,.tbl-foot-lt{padding:11px 18px!important}
   .otbl-lt{font-size:11px!important}
   .tbl-logo,.tbl-logo-dk{font-size:16px!important;letter-spacing:4px!important}
+  .order-page{min-height:265mm!important}
   .order-hdr{padding:22px 18px 14px!important}
   .order-grid{padding:16px 18px 24px!important;grid-template-columns:1fr!important;gap:14px!important}
   .o-blk{padding:16px!important}
@@ -1581,7 +1592,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   .o-lead-row{font-size:10px!important}
   .spec-tbl{font-size:10px!important}
   .spec-tbl th{font-size:6px!important}
-  .ty-page{padding:30px 22px 22px!important}
+  .ty-page{padding:30px 22px 22px!important;min-height:265mm!important}
   .ty-inner{grid-template-columns:1fr!important;gap:28px!important}
   .ty-title{font-size:42px!important}
   .ty-txt{font-size:11px!important}
@@ -1592,7 +1603,7 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   .contact-phone{font-size:10px!important}
   .contact-role{font-size:7px!important}
   .cbox-learn,.cbox-order{padding:13px 14px!important}
-  .back-cover{padding:36px 22px!important;justify-content:center!important;gap:24px!important;min-height:100vh!important;height:auto!important}
+  .back-cover{padding:36px 22px!important;justify-content:center!important;gap:24px!important;min-height:265mm!important;height:265mm!important}
   .bc-wordmark{font-size:46px!important;letter-spacing:0.18em!important}
   .bc-tagline{font-size:10px!important;letter-spacing:0.15em!important}
   .bc-address{font-size:8px!important}
