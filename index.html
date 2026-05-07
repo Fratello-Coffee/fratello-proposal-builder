@@ -742,7 +742,7 @@ body{font-family:var(--ff-main);background:var(--cream);color:var(--text);-webki
 .prod-hdr{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--cream-deep);border-top:2px solid var(--teal);padding-top:12px;margin-bottom:28px}
 .prod-hdr-title{font-size:26px;font-weight:800;letter-spacing:-0.02em;color:#16140C}
 .prod-hdr-num{font-size:7px;font-weight:700;letter-spacing:4px;color:var(--teal);text-transform:uppercase}
-.pc-hero{display:grid;grid-template-columns:1fr 1.6fr;gap:0;background:var(--cream-alt);margin-bottom:48px;overflow:hidden}
+.pc-hero{display:grid;grid-template-columns:1fr 1.6fr;gap:0;background:var(--cream-alt);margin-bottom:48px;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
 .pc-hero-img-wrap{background:#f5f0e8;display:flex;align-items:flex-end;justify-content:center;padding:40px 24px 0;overflow:hidden}
 .pc-hero-img-wrap img{width:260px;object-fit:contain;display:block;padding:8px}
 .pc-hero-body{padding:48px 56px 48px 48px;display:flex;flex-direction:column;justify-content:center}
@@ -826,15 +826,18 @@ html,body{height:auto!important;overflow:visible!important}
 body::after{display:none!important}
 #toolbar{display:none!important}
 .cover{page-break-after:always;min-height:100vh;height:100vh}
-.about-wrap,.about-page{page-break-after:always}
-.chap{page-break-before:always;page-break-after:avoid;min-height:44vh;max-height:55vh}
-.prod-page,.tea-page{page-break-before:avoid;page-break-after:always;min-height:50vh}
-.prod-overflow{page-break-before:always;page-break-after:always;min-height:50vh}
-.tbl-dark,.tbl-light{page-break-before:always;page-break-after:always}
-.order-page{page-break-before:always;page-break-after:always}
-.ty-page{page-break-before:always;page-break-after:always;min-height:100vh}
-.back-cover{page-break-before:always;height:100vh}
+.about-wrap,.about-page{page-break-after:avoid}
+.chap{page-break-before:always;page-break-after:always;min-height:100vh;height:100vh;display:flex;align-items:center}
+.prod-page,.tea-page{page-break-before:avoid;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;break-inside:avoid;page-break-inside:avoid}
+.prod-overflow{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;break-inside:avoid;page-break-inside:avoid}
+.tbl-dark,.tbl-light{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
+.tbl-dark>.tbl-body,.tbl-light>.tbl-body{flex:1;display:flex;flex-direction:column;justify-content:center}
+.order-page{page-break-before:always;page-break-after:avoid;min-height:100vh;display:flex;flex-direction:column;break-inside:avoid;page-break-inside:avoid}
+.order-page>.order-grid{flex:1;align-content:center}
+.ty-page{page-break-before:always;page-break-after:avoid;min-height:100vh;break-inside:avoid;page-break-inside:avoid}
+.back-cover{page-break-before:always;height:100vh;break-inside:avoid;page-break-inside:avoid;display:flex;align-items:center;justify-content:center}
 .pc,.tc{break-inside:avoid!important;page-break-inside:avoid!important}
+.pc-hero{break-inside:avoid!important;page-break-inside:avoid!important}
 .pg-3,.pg-4,.pg-2,.t-grid{break-inside:auto!important}
 .pg-1{min-height:320px;display:flex;align-items:center;justify-content:center}
 .pg-1 .pc{max-width:360px}
@@ -848,7 +851,29 @@ body::after{display:none!important}
 .chap-title{color:#fff!important}
 .chap-title em{color:rgba(255,255,255,0.75)!important}
 .chap-body{color:rgba(255,255,255,0.68)!important}
-.diff-bar{page-break-before:avoid;page-break-after:always}
+.diff-bar{page-break-before:avoid;page-break-after:avoid}
+/* Print compaction: shrink order-page so it fits on one A4 landscape page */
+.order-hdr{padding:22px 48px 14px!important}
+.order-grid{padding:16px 48px 24px!important;gap:14px!important}
+.o-blk{padding:18px!important}
+.o-ttl{margin-bottom:8px!important;padding-bottom:7px!important}
+.o-txt{margin-bottom:6px!important;line-height:1.5!important;font-size:12px!important}
+.o-lead-row{padding:5px 0!important;font-size:12px!important}
+.spec-tbl th,.spec-tbl td{padding:5px 8px!important}
+.spec-tbl{margin-top:8px!important;font-size:11px!important}
+.hours-row{padding:9px 12px!important;margin-top:8px!important}
+/* Print compaction: shrink ty-page so it fits on one A4 landscape page */
+.ty-page{padding:36px 56px 22px!important}
+.ty-inner{gap:48px!important}
+.ty-title{font-size:64px!important;margin-bottom:14px!important}
+.ty-rule{margin:0 0 14px!important}
+.ty-txt{font-size:11.5px!important;line-height:1.6!important;margin-bottom:8px!important}
+.ty-foot{margin-top:18px!important;padding-top:12px!important}
+.cbox-learn{padding:13px 16px!important;margin-bottom:7px!important}
+.cbox-order{padding:13px 16px!important}
+.contact-card{padding:10px 12px!important}
+.contact-name{font-size:11px!important;margin-bottom:1px!important}
+.contact-role{margin-bottom:6px!important}
 }
 
 /* ── ABOUT PAGE ── */
@@ -865,13 +890,13 @@ body::after{display:none!important}
 .about-right img{width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block;}
 .about-photo-stat-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 36px;background:linear-gradient(transparent,rgba(0,0,0,0.78));}
 /* ── DIFF BAR ── */
-.diff-bar{background:#111111;display:grid;grid-template-columns:repeat(4,1fr);page-break-before:avoid;flex-shrink:0;page-break-after:always;}
+.diff-bar{background:#111111;display:grid;grid-template-columns:repeat(4,1fr);page-break-before:avoid;flex-shrink:0;page-break-after:avoid;}
 .diff-item{padding:30px 20px;border-right:1px solid rgba(255,255,255,0.06);text-align:center;display:flex;flex-direction:column;align-items:center;}
 .diff-item:last-child{border-right:none;}
 .diff-text{font-size:13px;font-weight:500;line-height:1.5;color:rgba(255,255,255,0.78);}
 .diff-pip{width:3px;height:3px;border-radius:50%;background:#2eb4af;margin:12px auto 0;}
 /* ── OFFERING TABLE DARK ── */
-.tbl-dark{background:#000;page-break-before:always;page-break-after:always;}
+.tbl-dark{background:#000;page-break-before:always;page-break-after:avoid;}
 .tbl-hdr{padding:36px 64px 24px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:18px;}
 .tbl-logo{font-size:20px;font-weight:900;letter-spacing:7px;color:#fff;text-transform:uppercase;}
 .tbl-sep{width:1px;height:24px;background:rgba(255,255,255,0.12);}
@@ -886,7 +911,7 @@ body::after{display:none!important}
 .cat-lbl{font-size:8px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:#2eb4af;padding:14px 14px 4px;display:block;border-top:1px solid rgba(255,255,255,0.05);}
 .tbl-foot{padding:14px 64px;border-top:1px solid rgba(255,255,255,0.05);text-align:right;font-size:8px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.35);}
 /* ── OFFERING TABLE LIGHT ── */
-.tbl-light{background:#000;page-break-before:always;page-break-after:always;}
+.tbl-light{background:#000;page-break-before:always;page-break-after:avoid;}
 .tbl-hdr-light{padding:28px 56px 20px;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:18px;}
 .tbl-logo-dk{font-size:20px;font-weight:900;letter-spacing:7px;color:#fff;text-transform:uppercase;}
 .tbl-sep-dk{width:1px;height:24px;background:rgba(255,255,255,0.2);}
@@ -902,7 +927,7 @@ body::after{display:none!important}
 .promo-strip-txt{font-size:12px;font-weight:300;color:rgba(255,255,255,0.55);line-height:1.7;}
 .promo-strip-txt strong{font-weight:700;color:#fff;display:block;margin-bottom:3px;}
 /* ── ORDER PAGE ── */
-.order-page{background:#F6F1E9;page-break-before:always;page-break-after:always;}
+.order-page{background:#F6F1E9;page-break-before:always;page-break-after:avoid;}
 .order-hdr{padding:36px 64px 24px;border-bottom:1px solid #DDD6C4;display:flex;align-items:center;gap:18px;}
 .order-grid{padding:24px 64px 44px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 .o-blk{background:#EFEAD9;padding:26px;border-left:2px solid #2eb4af;}
@@ -921,7 +946,7 @@ body::after{display:none!important}
 .hours-row span{font-size:12px;font-weight:300;color:rgba(255,255,255,0.55);}
 .hours-row strong{font-size:13px;font-weight:800;color:#2eb4af;}
 /* ── THANK YOU ── */
-.ty-page{background:#000;padding:68px 68px 36px;min-height:640px;position:relative;overflow:hidden;page-break-before:always;page-break-after:always;}
+.ty-page{background:#000;padding:68px 68px 36px;min-height:640px;position:relative;overflow:hidden;page-break-before:always;page-break-after:avoid;}
 .ty-wm{display:none;}
 .ty-inner{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;position:relative;z-index:2;}
 .ty-title{font-size:clamp(52px,7.5vw,86px);font-weight:900;line-height:0.92;color:#fff;margin-bottom:22px;letter-spacing:-0.025em;}
@@ -1490,9 +1515,13 @@ function buildProposalHTML(selectedProducts, clientName, repName) {
   // mobilePrintOverrides below forces critical mobile layout rules with !important
   // so the PDF stays mobile-styled even if some print-rendering quirks exist.
   const isMobileViewport=typeof window!=='undefined'&&window.innerWidth<=768;
+  // Mobile browsers (iOS Safari, Chrome iOS) often ignore custom @page sizes and
+  // apply default margins. Using size:auto + !important margin:0 is the most robust
+  // combination — lets the browser pick its native page size but kills the white
+  // border/margin around the content.
   const dynamicPrintCSS=isMobileViewport
-    ? `@media print { @page { size: A5 portrait; margin: 0 } }`
-    : `@media print { @page { size: A4 landscape; margin: 0 } }`;
+    ? `@media print { @page { size: auto; margin: 0 !important; padding: 0 !important } html, body { margin: 0 !important; padding: 0 !important } }`
+    : `@media print { @page { size: A4 landscape; margin: 0 !important } html, body { margin: 0 !important; padding: 0 !important } }`;
   const mobilePrintOverrides=isMobileViewport?`
 @media print {
   .cover-stats{flex-direction:column!important;align-items:center!important;gap:16px!important;margin-top:28px!important}
