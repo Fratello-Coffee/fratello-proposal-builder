@@ -668,6 +668,38 @@ const PRODUCTS=[
 
 ];
 
+// ── COMPACT URL ENCODING ──────────────────────────────────────────────────────
+// Compresses product IDs to 2-char codes (base62) for shorter, prettier links.
+// Backwards compatible: also decodes legacy comma-separated IDs.
+const _ENC_CHARS='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const _ID_TO_CODE={};
+const _CODE_TO_ID={};
+PRODUCTS.forEach((p,i)=>{
+  const a=Math.floor(i/62), b=i%62;
+  const code=_ENC_CHARS[a]+_ENC_CHARS[b];
+  _ID_TO_CODE[p.id]=code;
+  _CODE_TO_ID[code]=p.id;
+});
+function encodeIDs(idsArray){
+  return idsArray.map(id=>_ID_TO_CODE[id]||'').filter(Boolean).join('');
+}
+function decodeIDs(str){
+  if(!str)return [];
+  // Legacy format with commas
+  if(str.includes(',')) return str.split(',').filter(id=>PRODUCTS.some(p=>p.id===id));
+  // New compact format: 2-char chunks
+  if(str.length%2===0){
+    const ids=[];
+    for(let i=0;i<str.length;i+=2){
+      const id=_CODE_TO_ID[str.substr(i,2)];
+      if(id)ids.push(id);
+    }
+    if(ids.length)return ids;
+  }
+  // Fallback: try as single ID (in case it was passed as single)
+  return PRODUCTS.some(p=>p.id===str)?[str]:[];
+}
+
 // ── PROPOSAL CSS (exact Portfolio style) ──────────────────────────────────────
 const PROPOSAL_CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
@@ -1701,7 +1733,7 @@ function App(){
       const params=new URLSearchParams(window.location.search);
       const pParam=params.get('p');
       if(pParam){
-        const ids=pParam.split(',').filter(id=>PRODUCTS.some(pr=>pr.id===id));
+        const ids=decodeIDs(pParam);
         if(ids.length)return new Set(ids);
       }
     }catch(e){}
@@ -1717,12 +1749,20 @@ function App(){
   const [showModal,setShowModal]=useState(false);
   const [modalOpen,setModalOpen]=useState(false);
   const [linkCopied,setLinkCopied]=useState(false);
+  // Detect if this session was opened from a shared client link.
+  // If yes, hide the Edit button so the client can't access the builder.
+  const [cameFromShared]=useState(()=>{
+    try{
+      const params=new URLSearchParams(window.location.search);
+      return params.get('view')==='proposal'&&!!params.get('p');
+    }catch(e){return false;}
+  });
 
   // ── Sync selection to URL (without reload) — skip if too many products to avoid browser crashes ──
   useEffect(()=>{
     try{
       const params=new URLSearchParams();
-      if(selected.size>0&&selected.size<=100) params.set('p',[...selected].join(','));
+      if(selected.size>0&&selected.size<=100) params.set('p',encodeIDs([...selected]));
       if(clientName) params.set('client',clientName);
       if(view==='proposal') params.set('view','proposal');
       const qs=params.toString();
@@ -1735,7 +1775,7 @@ function App(){
   const copyShareLink=(includeView)=>{
     try{
       const params=new URLSearchParams();
-      if(selected.size>0&&selected.size<=100) params.set('p',[...selected].join(','));
+      if(selected.size>0&&selected.size<=100) params.set('p',encodeIDs([...selected]));
       if(clientName) params.set('client',clientName);
       if(includeView==='proposal') params.set('view','proposal');
       const url=window.location.origin+window.location.pathname+'?'+params.toString();
@@ -1860,12 +1900,14 @@ function App(){
         <div className="mobile-propbar" style={{height:52,background:"#0d0d0d",display:"flex",alignItems:"center",
           justifyContent:"space-between",padding:"0 24px",flexShrink:0,
           borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
-          <button onClick={()=>setView("catalog")} style={{
-            cursor:"pointer",background:"none",border:"1px solid rgba(255,255,255,0.15)",
-            borderRadius:6,padding:"7px 16px",color:"rgba(255,255,255,0.6)",
-            fontSize:11,letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
-            ← Edit
-          </button>
+          {!cameFromShared ? (
+            <button onClick={()=>setView("catalog")} style={{
+              cursor:"pointer",background:"none",border:"1px solid rgba(255,255,255,0.15)",
+              borderRadius:6,padding:"7px 16px",color:"rgba(255,255,255,0.6)",
+              fontSize:11,letterSpacing:1,fontFamily:"'Montserrat',sans-serif"}}>
+              ← Edit
+            </button>
+          ) : <span/>}
           <span style={{color:"rgba(255,255,255,0.3)",fontSize:9,letterSpacing:3,
             textTransform:"uppercase",fontFamily:"'Montserrat',sans-serif"}}>
             {selectedProducts.length} products{clientName?" · "+clientName:""}
